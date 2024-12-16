@@ -16,7 +16,6 @@ use sway_libs::{
     },
 };
 use standards::src5::{SRC5, State};
-use positional_market::PositionalMarket;
 
 // 7 Days * 24 hrs * 60 min * 60 secs
 const ROUND_LENGTH_SECS = 604800;
@@ -218,7 +217,7 @@ fn can_close_current_round() -> bool {
     let mut i = 0;
     while i < trading_markets.len() {
         let market_address = trading_markets.get(i).unwrap();
-        let positional_market = abi(PositionalMarket, market_address.into());
+        //let positional_market = abi(Game, market_address.into());
     }
 
     return true;

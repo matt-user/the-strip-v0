@@ -2,7 +2,10 @@
 authors = ["deez"]
 entry = "main.sw"
 license = "Apache-2.0"
-name = "positional_market"
+name = "game"
+
+[contract-dependencies]
+liquidity_pool = { path = "../liquidity_pool" }
 
 [dependencies]
 standards = { git = "https://github.com/FuelLabs/sway-standards", tag = "v0.6.1" }

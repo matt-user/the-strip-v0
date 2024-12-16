@@ -64,12 +64,24 @@ struct GameDetails {
     game_label: str[64],
 }
 
-abi PositionalMarket {
-    #[storage(write)]
-    fn initialize(new_owner: Option<Identity>);
+enum Outcome {
+    BLUE: (),
+    GREEN: (),
+    YELLOW: (),
+    RED: ()
 }
 
-impl PositionalMarket for Contract {
+abi Game {
+    #[storage(write)]
+    fn initialize(new_owner: Option<Identity>);
+    
+    // User sends USD to place bet on outcome of game
+    // call needs to include liquidity pool
+    #[storage(write, read)]
+    fn place_bet(outcome: Outcome);
+}
+
+impl Game for Contract {
     /// Initializes the contract owner.
     ///
     /// # Arguments
@@ -89,5 +101,10 @@ impl PositionalMarket for Contract {
             None => initialize_ownership(OWNER),
             Some(new_owner) => initialize_ownership(new_owner),
         }
+    }
+
+    #[storage(write, read)]
+    fn place_bet(outcome: Outcome) {
+
     }
 }
