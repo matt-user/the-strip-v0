@@ -79,6 +79,17 @@ abi Game {
     // call needs to include liquidity pool
     #[storage(write, read)]
     fn place_bet(outcome: Outcome);
+    
+    // Request the contract to generate a random number
+    // locks bets, no users can place bets after this function call
+    // restricted to the owner
+    #[storage(write, read)]
+    fn request_random(seed: b256);
+
+    // Fulfill the random number request
+    // payout bets and send remaining collateral to liquidity pool
+    #[storage(write, read)]
+    fn fulfill_random();
 }
 
 impl Game for Contract {
@@ -106,5 +117,15 @@ impl Game for Contract {
     #[storage(write, read)]
     fn place_bet(outcome: Outcome) {
 
+    }
+
+    #[storage(write, read)]
+    fn request_random(seed: b256) {
+
+    }
+
+    #[storage(write, read)]
+    fn fulfill_random() {
+        
     }
 }
