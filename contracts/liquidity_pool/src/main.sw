@@ -87,6 +87,10 @@ enum LiquidityPoolError {
     WithdrawalMustBeLarger: (),
     /// Emitted when a user signals a withdrawal > their collateral
     WithdrawalMustBeSmaller: (),
+    /// Emitted when a user tries to withdraw before completion of current round
+    MustWithdrawAfterRoundCompletion: (),
+    /// Emitted when a user that has no funds available to withdraw tries to withdraw
+    NoFundsToWithdraw: (),
 }
 
 /// Logged when a new round is started
@@ -286,6 +290,18 @@ impl LiquidityPool for Contract {
     ///
     /// Amount must be at least 10% of a user's total deposit
     /// A user can call `withdrawal` after the current round has closed
+    /// # Reverts:
+    ///
+    /// * When the vault hasn't been started
+    /// * When the round hasn't completed
+    /// * When there is no collateral in the vault
+    /// * When the withdrawal < 10% of collateral
+    /// * When the withdrawal > collateral
+    ///
+    /// # Number of Storage Accesses
+    ///
+    /// Reads: `5`
+    /// Writes: `2`
     #[storage(read, write)]
     fn signal_withdrawal(amount: u64) {
         require_not_paused();
@@ -326,8 +342,43 @@ impl LiquidityPool for Contract {
     // #[storage(read, write)]
     fn request_collateral(amount: u64) {}
 
+    /// User initiates withdrawal of their signalled withdrawal amount
+    ///
+    /// # Reverts:
+    ///
+    /// * When the vault hasn't been started
+    /// * When the round hasn't completed
+    /// * When there are no funds available for withdrawal
+    ///
+    ///
+    /// # Number of Storage Accesses
+    ///
+    /// Reads: `4`
+    /// Writes: `1`
     #[storage(read, write)]
-    fn withdrawal() {}
+    fn withdrawal() {
+        require_not_paused();
+        let vault_started = storage.has_vault_started.read();
+        require(vault_started, LiquidityPoolError::VaultNotStarted);
+
+        let round = storage.current_round.read();
+
+        require(
+            timestamp() > (storage
+                    .round_start_time
+                    .get(round)
+                    .read() + ROUND_LENGTH_SECS),
+            LiquidityPoolError::MustWithdrawAfterRoundCompletion,
+        );
+
+        let sender = msg_sender().unwrap();
+        let withdrawal_amount = storage.signal_withdrawals.get(sender).read();
+
+        require(withdrawal_amount > 0, LiquidityPoolError::NoFundsToWithdraw);
+        // TODO: maybe add a check here for contract balance and ensure it is > withdrawal_amount
+        transfer(sender, DEPOSIT_ASSET_ID, withdrawal_amount);
+        storage.signal_withdrawals.insert(sender, 0);
+    }
 }
 
 /// Checks if all conditions are met to close the round
