@@ -1,13 +1,14 @@
 contract;
 
 use std::{
+    asset::transfer,
     block::height,
     block::timestamp,
     bytes::Bytes,
     call_frames::msg_asset_id,
     context::msg_amount,
     hash::Hash,
-    storage::storage_vec::StorageVec,
+    storage::storage_vec::*,
 };
 use sway_libs::{
     ownership::{
@@ -69,6 +70,18 @@ enum Outcome {
     RED: (),
 }
 
+impl Outcome {
+    fn equal(self, other: Outcome) -> bool {
+        match (self, other) {
+            (Outcome::GREEN, Outcome::GREEN) => true,
+            (Outcome::BLUE, Outcome::BLUE) => true,
+            (Outcome::YELLOW, Outcome::YELLOW) => true,
+            (Outcome::RED, Outcome::RED) => true,
+            _ => false,
+        }
+    }
+}
+
 enum GameError {
     MaturityNotReached: (),
     NotEnoughFundsDraw: (u64, u64),
@@ -98,7 +111,7 @@ abi Game {
 }
 
 storage {
-    bets: StorageMap<Identity, (Outcome, u64)> = StorageMap {},
+    bets: StorageVec<(Identity, Outcome, u64)> = StorageVec {},
     start_block_height: u32 = 0,
     request_id: Option<u64> = None,
 }
@@ -133,7 +146,7 @@ impl Game for Contract {
         assert(storage.request_id.read().is_none());
         storage
             .bets
-            .insert(msg_sender().unwrap(), (outcome, msg_amount()));
+            .push((msg_sender().unwrap(), outcome, msg_amount()));
         let liquidity_pool = abi(LiquidityPool, LIQUIDITY_POOL);
         liquidity_pool.request_collateral(msg_amount() * 3);
     }
@@ -184,6 +197,22 @@ impl Game for Contract {
             3 => Outcome::RED,
             _ => revert(4),
         };
-        // Payout bets and send remaining collateral to liquidity pool
+        let mut money_left = 0;
+        let mut i = 0;
+        while i < storage.bets.len() {
+            let (identity, user_outcome, amount) = storage.bets.get(i).unwrap().read();
+            if user_outcome.equal(outcome) {
+                transfer(identity, BASE_ASSET, amount * 4);
+            } else {
+                money_left = money_left + (amount * 4);
+            }
+            i += 1;
+        }
+        transfer(
+            Identity::Address(Address::from(LIQUIDITY_POOL)),
+            BASE_ASSET,
+            money_left,
+        );
+        storage.request_id.write(None);
     }
 }
