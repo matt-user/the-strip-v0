@@ -1,6 +1,17 @@
 [[package]]
 name = "core"
-source = "path+from-root-6A8836696D55BC6E"
+source = "path+from-root-F64B6E1A883A7E7B"
+
+[[package]]
+name = "game"
+source = "member"
+dependencies = [
+    "liquidity_pool_abi",
+    "standards git+https://github.com/FuelLabs/sway-standards?tag=v0.6.1#792639cdf391565e6e6a02482ea8a46d9604a6f5",
+    "std",
+    "sway_libs",
+    "vrf_abi",
+]
 
 [[package]]
 name = "liquidity_pool"
@@ -12,13 +23,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "positional_market"
-source = "member"
-dependencies = [
-    "standards git+https://github.com/FuelLabs/sway-standards?tag=v0.6.1#792639cdf391565e6e6a02482ea8a46d9604a6f5",
-    "std",
-    "sway_libs",
-]
+name = "liquidity_pool_abi"
+source = "path+from-root-DE298B072C8038D0"
+dependencies = ["std"]
 
 [[package]]
 name = "standards"
@@ -32,7 +39,7 @@ dependencies = ["std"]
 
 [[package]]
 name = "std"
-source = "git+https://github.com/fuellabs/sway?tag=v0.66.5#94a066652468b4afa3bd396dacef482ed590976b"
+source = "git+https://github.com/fuellabs/sway?tag=v0.66.4#d7dd104dac4394aa7af56f05b720c975744db853"
 dependencies = ["core"]
 
 [[package]]
@@ -42,3 +49,8 @@ dependencies = [
     "standards git+https://github.com/FuelLabs/sway-standards?tag=v0.6.0#65e09f95ea8b9476b171a66c8a47108f352fa32c",
     "std",
 ]
+
+[[package]]
+name = "vrf_abi"
+source = "path+from-root-DE298B072C8038D0"
+dependencies = ["std"]

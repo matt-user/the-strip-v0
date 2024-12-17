@@ -119,8 +119,13 @@ abi LiquidityPool {
     #[payable]
     fn deposit();
 
+    fn request_collateral(amount: u64);
+
     #[storage(read, write)]
     fn signal_withdrawal(amount: u64);
+
+    #[storage(read, write)]
+    fn withdrawal();
 }
 
 impl LiquidityPool for Contract {
@@ -260,6 +265,14 @@ impl LiquidityPool for Contract {
     #[storage(read, write)]
     fn signal_withdrawal(amount: u64) {
         require_not_paused();
+    }
+  
+    #[storage(read, write)]
+    fn request_collateral(amount: u64) {
+    }
+
+    #[storage(read, write)]
+    fn withdrawal() {
     }
 }
 
