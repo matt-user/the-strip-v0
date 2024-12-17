@@ -1,10 +1,14 @@
 contract;
 
-use std::{block::timestamp,
+use std::{
+    block::height,
+    block::timestamp,
+    bytes::Bytes,
     call_frames::msg_asset_id,
     context::msg_amount,
-    block::height,
- bytes::Bytes, hash::Hash, storage::storage_vec::StorageVec};
+    hash::Hash,
+    storage::storage_vec::StorageVec,
+};
 use sway_libs::{
     ownership::{
         _owner,
@@ -20,7 +24,9 @@ use sway_libs::{
     },
 };
 use standards::src5::{SRC5, State};
-use vrf_abi::Vrf;
+use vrf_abi::{randomness::RandomnessState, Vrf};
+use liquidity_pool_abi::LiquidityPool;
+use std::array_conversions::b256::*;
 
 const VRF_ADDR = 0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc4828d;
 const BASE_ASSET: AssetId = AssetId::from(0x9ae5b658754e096e4d681c548daf46354495a437cc61492599e33fc64dcdc30c);
@@ -60,7 +66,7 @@ enum Outcome {
     BLUE: (),
     GREEN: (),
     YELLOW: (),
-    RED: ()
+    RED: (),
 }
 
 enum GameError {
@@ -73,12 +79,12 @@ enum GameError {
 abi Game {
     #[storage(write)]
     fn initialize(new_owner: Option<Identity>);
-    
+
     // User sends USD to place bet on outcome of game
     // call needs to include liquidity pool
     #[storage(write, read)]
     fn place_bet(outcome: Outcome);
-    
+
     // Request the contract to generate a random number
     // locks bets, no users can place bets after this function call
     // restricted to the owner
@@ -125,30 +131,59 @@ impl Game for Contract {
         assert(msg_asset_id() == BASE_ASSET);
         assert(msg_amount() > 0);
         assert(storage.request_id.read().is_none());
-
-        storage.bets.insert(msg_sender().unwrap(), (outcome, msg_amount()));
+        storage
+            .bets
+            .insert(msg_sender().unwrap(), (outcome, msg_amount()));
+        let liquidity_pool = abi(LiquidityPool, LIQUIDITY_POOL);
+        liquidity_pool.request_collateral(msg_amount() * 3);
     }
 
     #[storage(write, read)]
     fn request_random(seed: b256) {
         only_owner();
-        require(height() > storage.start_block_height.read() + MATURITY, GameError::MaturityNotReached);
+        require(
+            height() > storage
+                .start_block_height
+                .read() + MATURITY,
+            GameError::MaturityNotReached,
+        );
         require(msg_asset_id() == AssetId::base(), GameError::WrongAssetDraw);
         let amount = msg_amount();
-        let cost = abi(Vrf, VRF_ADDR).get_fee(AssetId::base());
+        let vrf = abi(Vrf, VRF_ADDR);
+        let cost = vrf.get_fee(AssetId::base());
         if amount < cost {
             log(GameError::NotEnoughFundsDraw((amount, cost)));
             revert(3);
         }
-        let id = abi(Vrf, VRF_ADDR).request(seed);
+        let id = vrf.request(seed);
         storage.request_id.write(Some(id));
     }
 
     #[storage(write, read)]
     fn fulfill_random() {
-        require(storage.request_id.read().is_some(), GameError::RequestNotDone);
+        require(
+            storage
+                .request_id
+                .read()
+                .is_some(),
+            GameError::RequestNotDone,
+        );
 
         let id = storage.request_id.read().unwrap();
-        let randomness = abi(Vrf, VRF_ADDR).get_request_by_num(id).unwrap();
+        let randomness = abi(Vrf, VRF_ADDR).get_request_by_num(id).unwrap().state;
+        let random_number = match randomness {
+            RandomnessState::Fulfilled(fulfilled) => fulfilled.randomness,
+            _ => revert(4),
+        };
+
+        let test_value: u8 = random_number.bits()[0].to_be_bytes()[0];
+        let outcome = match test_value {
+            0 => Outcome::BLUE,
+            1 => Outcome::GREEN,
+            2 => Outcome::YELLOW,
+            3 => Outcome::RED,
+            _ => revert(4),
+        };
+        // Payout bets and send remaining collateral to liquidity pool
     }
 }

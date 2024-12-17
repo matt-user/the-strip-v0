@@ -6,12 +6,12 @@ source = "path+from-root-F64B6E1A883A7E7B"
 name = "game"
 source = "member"
 dependencies = [
+    "liquidity_pool_abi",
     "standards git+https://github.com/FuelLabs/sway-standards?tag=v0.6.1#792639cdf391565e6e6a02482ea8a46d9604a6f5",
     "std",
     "sway_libs",
     "vrf_abi",
 ]
-contract-dependencies = ["liquidity_pool"]
 
 [[package]]
 name = "liquidity_pool"
@@ -21,6 +21,11 @@ dependencies = [
     "std",
     "sway_libs",
 ]
+
+[[package]]
+name = "liquidity_pool_abi"
+source = "path+from-root-DE298B072C8038D0"
+dependencies = ["std"]
 
 [[package]]
 name = "standards"

@@ -4,10 +4,8 @@ entry = "main.sw"
 license = "Apache-2.0"
 name = "game"
 
-[contract-dependencies]
-liquidity_pool = { path = "../liquidity_pool" }
-
 [dependencies]
+liquidity_pool_abi = { path = "../liquidity_pool_abi" }
 standards = { git = "https://github.com/FuelLabs/sway-standards", tag = "v0.6.1" }
 sway_libs = { git = "https://github.com/FuelLabs/sway-libs", tag = "v0.24.0" }
 vrf_abi = { path = "../vrf" }
