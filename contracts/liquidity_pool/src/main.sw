@@ -39,6 +39,7 @@ storage {
     trading_markets_per_round: StorageMap<u64, StorageVec<ContractId>> = StorageMap::<u64, StorageVec<ContractId>> {},
     deposits: StorageMap<Identity, u64> = StorageMap {},
     collateral: StorageMap<Identity, u64> = StorageMap {},
+    withdraws: StorageMap<Identity, u64> = StorageMap {},
 }
 
 impl SRC5 for Contract {
@@ -117,6 +118,9 @@ abi LiquidityPool {
     #[storage(read, write)]
     #[payable]
     fn deposit();
+
+    #[storage(read, write)]
+    fn signal_withdrawal(amount: u64);
 }
 
 impl LiquidityPool for Contract {
@@ -245,6 +249,17 @@ impl LiquidityPool for Contract {
         log(Deposit {
             amount: new_deposit,
         });
+    }
+
+    /// User signals withdrawal of their collateral.
+    ///
+    /// # Additional Information
+    ///
+    /// Amount must be at least 10% of a user's total deposit
+    /// A user can call `withdrawal` after the current round has closed
+    #[storage(read, write)]
+    fn signal_withdrawal(amount: u64) {
+        require_not_paused();
     }
 }
 
