@@ -1,14 +1,10 @@
 {
   "name": "scripts",
   "version": "1.0.0",
-  "main": "index.js",
   "type": "module",
   "license": "MIT",
   "dependencies": {
-    "dotenv": "^16.4.7",
-    "fuels": "^0.97.2",
-    "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "dotenv": "^16.4.7"
   },
   "scripts": {
     "deploy:usds": "npx tsx src/deploy_usds.ts",

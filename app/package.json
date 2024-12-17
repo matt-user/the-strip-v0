@@ -1,0 +1,16 @@
+{
+  "name": "fuels-ts",
+  "version": "0.0.0",
+  "description": "Fuel TS SDK",
+  "workspaces": [
+    "frontend/*",
+    "scripts/*"
+  ],
+  "dependencies": {
+    "fuels": "^0.97.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.2",
+    "tsx": "^4.19.2"
+  }
+}
