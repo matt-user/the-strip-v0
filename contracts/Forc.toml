@@ -1,2 +1,2 @@
 [workspace]
-members = ["./liquidity_pool", "./positional_market"]
+members = ["./liquidity_pool", "./game"]

@@ -16,7 +16,6 @@ use sway_libs::{
     },
 };
 use standards::src5::{SRC5, State};
-use positional_market::PositionalMarket;
 
 // 7 Days * 24 hrs * 60 min * 60 secs
 const ROUND_LENGTH_SECS = 604800;
@@ -96,6 +95,15 @@ abi LiquidityPool {
 
     #[storage(read, write)]
     fn can_close_current_round() -> bool;
+
+    #[storage(read, write)]
+    fn request_collateral(amount: u64);
+
+    #[storage(read, write)]
+    fn signal_withdrawal(amount: u64);
+
+    #[storage(read, write)]
+    fn withdrawal();
 }
 
 impl LiquidityPool for Contract {
@@ -193,6 +201,18 @@ impl LiquidityPool for Contract {
     fn can_close_current_round() -> bool {
         can_close_current_round()
     }
+
+    #[storage(read, write)]
+    fn request_collateral(amount: u64) {
+    }
+
+    #[storage(read, write)]
+    fn signal_withdrawal(amount: u64) {
+    }
+
+    #[storage(read, write)]
+    fn withdrawal() {
+    }
 }
 
 /// Checks if all conditions are met to close the round
@@ -218,7 +238,7 @@ fn can_close_current_round() -> bool {
     let mut i = 0;
     while i < trading_markets.len() {
         let market_address = trading_markets.get(i).unwrap();
-        let positional_market = abi(PositionalMarket, market_address.into());
+        //let positional_market = abi(Game, market_address.into());
     }
 
     return true;
