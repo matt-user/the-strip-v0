@@ -6,11 +6,19 @@
     "frontend/*",
     "scripts/*"
   ],
+  "scripts": {
+    "build": "fuels build",
+    "lint": "eslint .",
+    "fuels:dev": "fuels dev",
+    "test": "vitest"
+  },
   "dependencies": {
     "fuels": "^0.97.2"
   },
   "devDependencies": {
+    "dotenv": "^16.4.7",
     "typescript": "^5.7.2",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "vitest": "~2.0.5"
   }
 }
