@@ -41,6 +41,7 @@ storage {
     deposit_keys: StorageVec<Identity> = StorageVec {},
     collateral: StorageMap<Identity, u64> = StorageMap {},
     withdraws: StorageMap<Identity, u64> = StorageMap {},
+    signal_withdrawals: StorageMap<Identity, u64> = StorageMap {},
 }
 
 impl SRC5 for Contract {
@@ -76,6 +77,16 @@ enum LiquidityPoolError {
     CannotCloseCurrentRound: (),
     /// Emitted if the deposited asset is not DEPOSITED_ASSET_ID
     WrongDepositedAsset: (),
+    /// Emitted when a vault should be started before signaling withdrawal
+    VaultNotStarted: (),
+    /// Emitted when a user signaling a withdrawal has no collateral
+    NoCollateralInVault: (),
+    /// Emitted when a user signals a withdrawal during the current round
+    MustSignalWithdrawalAfterRoundCompletion: (),
+    /// Emitted when a user signals a withdrawal < 10% of their collateral
+    WithdrawalMustBeLarger: (),
+    /// Emitted when a user signals a withdrawal > their collateral
+    WithdrawalMustBeSmaller: (),
 }
 
 /// Logged when a new round is started
@@ -182,7 +193,7 @@ impl LiquidityPool for Contract {
         let mut i = 0;
         while i < storage.deposit_keys.len() {
             let key = storage.deposit_keys.get(i).unwrap().read(); // QED, unwrap is fine
-            let value = storage.deposits.get(key).unwrap().read(); // QED, we won't have a bad invariant here
+            let value = storage.deposits.get(key).read(); // QED, we won't have a bad invariant here
             storage.collateral.insert(key, value); // move deposit to collateral
             storage.deposits.insert(key, 0); // 0 out the deposit
             i += 1;
@@ -278,9 +289,41 @@ impl LiquidityPool for Contract {
     #[storage(read, write)]
     fn signal_withdrawal(amount: u64) {
         require_not_paused();
+        let vault_started = storage.has_vault_started.read();
+        require(vault_started, LiquidityPoolError::VaultNotStarted);
+
+        let round = storage.current_round.read();
+
+        require(
+            timestamp() > (storage
+                    .round_start_time
+                    .get(round)
+                    .read() + ROUND_LENGTH_SECS),
+            LiquidityPoolError::MustSignalWithdrawalAfterRoundCompletion,
+        );
+
+        let sender = msg_sender().unwrap();
+
+        let collateral = storage.collateral.get(sender).read();
+        require(collateral > 0, LiquidityPoolError::NoCollateralInVault);
+        require(
+            amount > collateral / 10,
+            LiquidityPoolError::WithdrawalMustBeLarger,
+        );
+        require(
+            amount < collateral,
+            LiquidityPoolError::WithdrawalMustBeSmaller,
+        );
+
+        storage.collateral.insert(sender, collateral - amount);
+        // TODO: should we allow multiple withdrawals to be signaled?
+        let signalled_withdrawal = storage.signal_withdrawals.get(sender).read();
+        storage
+            .signal_withdrawals
+            .insert(sender, signalled_withdrawal + amount);
     }
 
-    #[storage(read, write)]
+    // #[storage(read, write)]
     fn request_collateral(amount: u64) {}
 
     #[storage(read, write)]
