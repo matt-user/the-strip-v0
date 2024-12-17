@@ -1,6 +1,13 @@
 contract;
 
-use std::{block::timestamp, hash::Hash, storage::storage_vec::*, vec::*};
+use std::{
+    block::timestamp,
+    call_frames::msg_asset_id,
+    context::msg_amount,
+    hash::Hash,
+    storage::storage_vec::*,
+    vec::*,
+};
 use sway_libs::{
     ownership::{
         _owner,
@@ -16,13 +23,13 @@ use sway_libs::{
     },
 };
 use standards::src5::{SRC5, State};
-use positional_market::PositionalMarket;
 
 // 7 Days * 24 hrs * 60 min * 60 secs
 const ROUND_LENGTH_SECS = 604800;
 
 configurable {
     OWNER: Identity = Identity::Address(Address::from(0x656A68f0d8Fb82505BCD2bE28F6B7600cf427D828f3E3F9AAcdEf03a12D8f16C)),
+    DEPOSIT_ASSET_ID: AssetId = AssetId::zero(),
 }
 
 storage {
@@ -30,6 +37,8 @@ storage {
     current_round: u64 = 0,
     round_start_time: StorageMap<u64, u64> = StorageMap::<u64, u64> {},
     trading_markets_per_round: StorageMap<u64, StorageVec<ContractId>> = StorageMap::<u64, StorageVec<ContractId>> {},
+    deposits: StorageMap<Identity, u64> = StorageMap {},
+    collateral: StorageMap<Identity, u64> = StorageMap {},
 }
 
 impl SRC5 for Contract {
@@ -63,12 +72,20 @@ enum LiquidityPoolError {
     VaultAlreadyStarted: (),
     /// Emitted if a round can not be closed.
     CannotCloseCurrentRound: (),
+    /// Emitted if the deposited asset is not DEPOSITED_ASSET_ID
+    WrongDepositedAsset: (),
 }
 
 /// Logged when a new round is started
 struct RoundStarted {
     /// The new round starting
     pub round: u64,
+}
+
+/// Logged when a user deposits funds
+struct Deposit {
+    /// The amount deposited
+    pub amount: u64,
 }
 
 /// Represents round info
@@ -96,6 +113,10 @@ abi LiquidityPool {
 
     #[storage(read, write)]
     fn can_close_current_round() -> bool;
+
+    #[storage(read, write)]
+    #[payable]
+    fn deposit();
 }
 
 impl LiquidityPool for Contract {
@@ -193,6 +214,38 @@ impl LiquidityPool for Contract {
     fn can_close_current_round() -> bool {
         can_close_current_round()
     }
+
+    /// Deposit funds to be used as collateral in the next round.
+    ///
+    /// # Reverts:
+    ///
+    /// * When the deposited asset is not DEPOSIT_ASSET_ID
+    /// * When contract is paused
+    ///
+    /// # Number of Storage Accesses
+    ///
+    /// Reads: `1`
+    /// Writes: `1`
+    #[storage(read, write)]
+    #[payable]
+    fn deposit() {
+        require_not_paused();
+        let asset_id = msg_asset_id();
+        require(asset_id == DEPOSIT_ASSET_ID, LiquidityPoolError::WrongDepositedAsset);
+
+        let amount = msg_amount();
+        // TODO: require min asset amount
+
+        let sender = msg_sender().unwrap();
+
+        let current_deposit = storage.deposits.get(sender).read();
+        let new_deposit = current_deposit + amount;
+        storage.deposits.insert(sender, new_deposit);
+
+        log(Deposit {
+            amount: new_deposit,
+        });
+    }
 }
 
 /// Checks if all conditions are met to close the round
@@ -213,13 +266,13 @@ fn can_close_current_round() -> bool {
         return false;
     }
 
-    let trading_markets = storage.trading_markets_per_round.get(round).load_vec();
+    // let trading_markets = storage.trading_markets_per_round.get(round).load_vec();
 
-    let mut i = 0;
-    while i < trading_markets.len() {
-        let market_address = trading_markets.get(i).unwrap();
-        let positional_market = abi(PositionalMarket, market_address.into());
-    }
+    // let mut i = 0;
+    // while i < trading_markets.len() {
+    //     let market_address = trading_markets.get(i).unwrap();
+    //     let positional_market = abi(PositionalMarket, market_address.into());
+    // }
 
     return true;
 }

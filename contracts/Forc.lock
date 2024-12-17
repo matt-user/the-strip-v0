@@ -10,7 +10,6 @@ dependencies = [
     "std",
     "sway_libs",
 ]
-contract-dependencies = ["positional_market"]
 
 [[package]]
 name = "positional_market"
