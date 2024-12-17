@@ -38,6 +38,7 @@ storage {
     round_start_time: StorageMap<u64, u64> = StorageMap::<u64, u64> {},
     trading_markets_per_round: StorageMap<u64, StorageVec<ContractId>> = StorageMap::<u64, StorageVec<ContractId>> {},
     deposits: StorageMap<Identity, u64> = StorageMap {},
+    deposit_keys: StorageVec<Identity> = StorageVec {},
     collateral: StorageMap<Identity, u64> = StorageMap {},
     withdraws: StorageMap<Identity, u64> = StorageMap {},
 }
@@ -160,8 +161,8 @@ impl LiquidityPool for Contract {
     ///
     /// # Number of Storage Accesses
     ///
-    /// * Reads: `1`
-    /// * Writes: `3`
+    /// * Reads: `1 + 2n`
+    /// * Writes: `3 + 2n`
     #[storage(read, write)]
     fn start_vault() {
         only_owner();
@@ -177,6 +178,15 @@ impl LiquidityPool for Contract {
         storage.current_round.write(round);
         storage.round_start_time.insert(round, timestamp());
         storage.has_vault_started.write(true);
+
+        let mut i = 0;
+        while i < storage.deposit_keys.len() {
+            let key = storage.deposit_keys.get(i).unwrap().read(); // QED, unwrap is fine
+            let value = storage.deposits.get(key).unwrap().read(); // QED, we won't have a bad invariant here
+            storage.collateral.insert(key, value); // move deposit to collateral
+            storage.deposits.insert(key, 0); // 0 out the deposit
+            i += 1;
+        }
 
         log(RoundStarted { round });
     }
@@ -234,22 +244,25 @@ impl LiquidityPool for Contract {
     /// # Number of Storage Accesses
     ///
     /// Reads: `1`
-    /// Writes: `1`
+    /// Writes: `2`
     #[storage(read, write)]
     #[payable]
     fn deposit() {
         require_not_paused();
         let asset_id = msg_asset_id();
-        require(asset_id == DEPOSIT_ASSET_ID, LiquidityPoolError::WrongDepositedAsset);
+        require(
+            asset_id == DEPOSIT_ASSET_ID,
+            LiquidityPoolError::WrongDepositedAsset,
+        );
 
         let amount = msg_amount();
         // TODO: require min asset amount
-
         let sender = msg_sender().unwrap();
 
         let current_deposit = storage.deposits.get(sender).read();
         let new_deposit = current_deposit + amount;
         storage.deposits.insert(sender, new_deposit);
+        storage.deposit_keys.push(sender);
 
         log(Deposit {
             amount: new_deposit,
@@ -266,14 +279,12 @@ impl LiquidityPool for Contract {
     fn signal_withdrawal(amount: u64) {
         require_not_paused();
     }
-  
-    #[storage(read, write)]
-    fn request_collateral(amount: u64) {
-    }
 
     #[storage(read, write)]
-    fn withdrawal() {
-    }
+    fn request_collateral(amount: u64) {}
+
+    #[storage(read, write)]
+    fn withdrawal() {}
 }
 
 /// Checks if all conditions are met to close the round
