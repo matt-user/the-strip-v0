@@ -12,6 +12,8 @@
   },
   "scripts": {
     "deploy:usds": "npx tsx src/deploy_usds.ts",
+    "deploy:liquidity_pool": "npx tsx src/deploy_liquidity_pool.ts",
+    "deploy:game": "npx tsx src/deploy_game.ts",
     "mint:usds": "npx tsx src/mint_usds.ts"
   }
 }
