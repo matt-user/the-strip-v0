@@ -10,3 +10,4 @@ liquidity_pool = { path = "../liquidity_pool" }
 [dependencies]
 standards = { git = "https://github.com/FuelLabs/sway-standards", tag = "v0.6.1" }
 sway_libs = { git = "https://github.com/FuelLabs/sway-libs", tag = "v0.24.0" }
+vrf_abi = { path = "../vrf" }

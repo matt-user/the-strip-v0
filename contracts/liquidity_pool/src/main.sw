@@ -95,6 +95,15 @@ abi LiquidityPool {
 
     #[storage(read, write)]
     fn can_close_current_round() -> bool;
+
+    #[storage(read, write)]
+    fn request_collateral(amount: u64);
+
+    #[storage(read, write)]
+    fn signal_withdrawal(amount: u64);
+
+    #[storage(read, write)]
+    fn withdrawal();
 }
 
 impl LiquidityPool for Contract {
@@ -191,6 +200,18 @@ impl LiquidityPool for Contract {
     #[storage(read, write)]
     fn can_close_current_round() -> bool {
         can_close_current_round()
+    }
+
+    #[storage(read, write)]
+    fn request_collateral(amount: u64) {
+    }
+
+    #[storage(read, write)]
+    fn signal_withdrawal(amount: u64) {
+    }
+
+    #[storage(read, write)]
+    fn withdrawal() {
     }
 }
 
