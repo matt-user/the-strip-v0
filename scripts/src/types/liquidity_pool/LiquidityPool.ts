@@ -28,8 +28,8 @@ export type IdentityInput = Enum<{ Address: AddressInput, ContractId: ContractId
 export type IdentityOutput = Enum<{ Address: AddressOutput, ContractId: ContractIdOutput }>;
 export enum InitializationErrorInput { CannotReinitialized = 'CannotReinitialized' };
 export enum InitializationErrorOutput { CannotReinitialized = 'CannotReinitialized' };
-export enum LiquidityPoolErrorInput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound' };
-export enum LiquidityPoolErrorOutput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound' };
+export enum LiquidityPoolErrorInput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound', WrongDepositedAsset = 'WrongDepositedAsset', VaultNotStarted = 'VaultNotStarted', NoCollateralInVault = 'NoCollateralInVault', MustSignalWithdrawalAfterRoundCompletion = 'MustSignalWithdrawalAfterRoundCompletion', WithdrawalMustBeLarger = 'WithdrawalMustBeLarger', WithdrawalMustBeSmaller = 'WithdrawalMustBeSmaller', MustWithdrawAfterRoundCompletion = 'MustWithdrawAfterRoundCompletion', NoFundsToWithdraw = 'NoFundsToWithdraw' };
+export enum LiquidityPoolErrorOutput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound', WrongDepositedAsset = 'WrongDepositedAsset', VaultNotStarted = 'VaultNotStarted', NoCollateralInVault = 'NoCollateralInVault', MustSignalWithdrawalAfterRoundCompletion = 'MustSignalWithdrawalAfterRoundCompletion', WithdrawalMustBeLarger = 'WithdrawalMustBeLarger', WithdrawalMustBeSmaller = 'WithdrawalMustBeSmaller', MustWithdrawAfterRoundCompletion = 'MustWithdrawAfterRoundCompletion', NoFundsToWithdraw = 'NoFundsToWithdraw' };
 export enum PauseErrorInput { Paused = 'Paused', NotPaused = 'NotPaused' };
 export enum PauseErrorOutput { Paused = 'Paused', NotPaused = 'NotPaused' };
 export type StateInput = Enum<{ Uninitialized: undefined, Initialized: IdentityInput, Revoked: undefined }>;
@@ -37,17 +37,22 @@ export type StateOutput = Enum<{ Uninitialized: void, Initialized: IdentityOutpu
 
 export type AddressInput = { bits: string };
 export type AddressOutput = AddressInput;
+export type AssetIdInput = { bits: string };
+export type AssetIdOutput = AssetIdInput;
 export type ContractIdInput = { bits: string };
 export type ContractIdOutput = ContractIdInput;
+export type DepositInput = { amount: BigNumberish };
+export type DepositOutput = { amount: BN };
 export type OwnershipSetInput = { new_owner: IdentityInput };
 export type OwnershipSetOutput = { new_owner: IdentityOutput };
 export type RoundInfoInput = { round: BigNumberish, has_vault_started: boolean, round_start_time: BigNumberish };
 export type RoundInfoOutput = { round: BN, has_vault_started: boolean, round_start_time: BN };
-export type RoundStartedInput = { round: BigNumberish };
-export type RoundStartedOutput = { round: BN };
+export type RoundStartedInput = { round: BigNumberish, round_collateral: BigNumberish };
+export type RoundStartedOutput = { round: BN, round_collateral: BN };
 
 export type LiquidityPoolConfigurables = Partial<{
   OWNER: IdentityInput;
+  DEPOSIT_ASSET_ID: AssetIdInput;
 }>;
 
 const abi = {
@@ -102,19 +107,29 @@ const abi = {
       "metadataTypeId": 7
     },
     {
+      "type": "struct Deposit",
+      "concreteTypeId": "1d2ce56b7181bc4bbcfc46234dbd20eff7f64898591d7aa139af7b018310f68f",
+      "metadataTypeId": 9
+    },
+    {
       "type": "struct RoundInfo",
       "concreteTypeId": "ac37a60d585a9f59811cec711282c0d1b62da497752e294b7a8d306f6f64c333",
-      "metadataTypeId": 9
+      "metadataTypeId": 10
     },
     {
       "type": "struct RoundStarted",
       "concreteTypeId": "abbc63f552b47b6ec05ebba9e1249b1ee4a7c6ec7da80d710eb6dc7c2a5370eb",
-      "metadataTypeId": 10
+      "metadataTypeId": 11
+    },
+    {
+      "type": "struct std::asset_id::AssetId",
+      "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
+      "metadataTypeId": 13
     },
     {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
       "concreteTypeId": "e1ef35033ea9d2956f17c3292dea4a46ce7d61fdf37bbebe03b7b965073f43b5",
-      "metadataTypeId": 13
+      "metadataTypeId": 15
     },
     {
       "type": "u64",
@@ -136,6 +151,38 @@ const abi = {
         },
         {
           "name": "CannotCloseCurrentRound",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "WrongDepositedAsset",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "VaultNotStarted",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "NoCollateralInVault",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "MustSignalWithdrawalAfterRoundCompletion",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "WithdrawalMustBeLarger",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "WithdrawalMustBeSmaller",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "MustWithdrawAfterRoundCompletion",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "NoFundsToWithdraw",
           "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
         }
       ]
@@ -174,11 +221,11 @@ const abi = {
       "components": [
         {
           "name": "Address",
-          "typeId": 11
+          "typeId": 12
         },
         {
           "name": "ContractId",
-          "typeId": 12
+          "typeId": 14
         }
       ]
     },
@@ -228,8 +275,18 @@ const abi = {
       "metadataTypeId": 8
     },
     {
-      "type": "struct RoundInfo",
+      "type": "struct Deposit",
       "metadataTypeId": 9,
+      "components": [
+        {
+          "name": "amount",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        }
+      ]
+    },
+    {
+      "type": "struct RoundInfo",
+      "metadataTypeId": 10,
       "components": [
         {
           "name": "round",
@@ -247,26 +304,20 @@ const abi = {
     },
     {
       "type": "struct RoundStarted",
-      "metadataTypeId": 10,
+      "metadataTypeId": 11,
       "components": [
         {
           "name": "round",
+          "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+        },
+        {
+          "name": "round_collateral",
           "typeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
         }
       ]
     },
     {
       "type": "struct std::address::Address",
-      "metadataTypeId": 11,
-      "components": [
-        {
-          "name": "bits",
-          "typeId": 0
-        }
-      ]
-    },
-    {
-      "type": "struct std::contract_id::ContractId",
       "metadataTypeId": 12,
       "components": [
         {
@@ -276,8 +327,28 @@ const abi = {
       ]
     },
     {
-      "type": "struct sway_libs::ownership::events::OwnershipSet",
+      "type": "struct std::asset_id::AssetId",
       "metadataTypeId": 13,
+      "components": [
+        {
+          "name": "bits",
+          "typeId": 0
+        }
+      ]
+    },
+    {
+      "type": "struct std::contract_id::ContractId",
+      "metadataTypeId": 14,
+      "components": [
+        {
+          "name": "bits",
+          "typeId": 0
+        }
+      ]
+    },
+    {
+      "type": "struct sway_libs::ownership::events::OwnershipSet",
+      "metadataTypeId": 15,
       "components": [
         {
           "name": "new_owner",
@@ -385,7 +456,7 @@ const abi = {
         {
           "name": "doc-comment",
           "arguments": [
-            " This function also exercises options and closes markets."
+            " This function moves collateral from `signaled_withdraws` to `withdraws`"
           ]
         },
         {
@@ -485,6 +556,90 @@ const abi = {
           "arguments": [
             "read"
           ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
+      "name": "deposit",
+      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Deposit funds to be used as collateral in the next round."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Reverts:"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When the deposited asset is not DEPOSIT_ASSET_ID"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When contract is paused"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Number of Storage Accesses"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Reads: `1`"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Writes: `2`"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        },
+        {
+          "name": "payable",
+          "arguments": []
         }
       ]
     },
@@ -593,6 +748,12 @@ const abi = {
       ],
       "name": "request_collateral",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
+      "attributes": null
+    },
+    {
+      "inputs": [],
+      "name": "send_remaining_collateral",
+      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
         {
           "name": "storage",
@@ -613,6 +774,114 @@ const abi = {
       "name": "signal_withdrawal",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " User signals withdrawal of their collateral."
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Additional Information"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Amount must be at least 10% of a user's total deposit"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " A user can call `withdrawal` after the current round has closed"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Reverts:"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When the vault hasn't been started"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When there is no collateral in the vault"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When the withdrawal < 10% of collateral"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When the withdrawal > collateral"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Number of Storage Accesses"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Reads: `5`"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Writes: `2`"
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -690,13 +959,13 @@ const abi = {
         {
           "name": "doc-comment",
           "arguments": [
-            " * Reads: `1`"
+            " * Reads: `2 + 2n`"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " * Writes: `3`"
+            " * Writes: `4 + 2n`"
           ]
         },
         {
@@ -710,9 +979,148 @@ const abi = {
     },
     {
       "inputs": [],
+      "name": "total_collateral",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get total collateral of liquidity pool"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * total_collatera: u64"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Storage Accesses"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * Reads: `1`"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
       "name": "withdrawal",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " User initiates withdrawal of their signalled withdrawal amount"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Reverts:"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When the vault hasn't been started"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When there are no funds available for withdrawal"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Number of Storage Accesses"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Reads: `4`"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Writes: `1`"
+          ]
+        },
         {
           "name": "storage",
           "arguments": [
@@ -733,16 +1141,20 @@ const abi = {
       "concreteTypeId": "f0341066f61d2e6c5cbf9909d1098acc8887e4d6a27ce1259b340479741bba8f"
     },
     {
+      "logId": "10032608944051208538",
+      "concreteTypeId": "8b3afcadf894415a10b09fc3717487e33802c8ffbb030edafe84ca4a71b280bc"
+    },
+    {
+      "logId": "2102307375703768139",
+      "concreteTypeId": "1d2ce56b7181bc4bbcfc46234dbd20eff7f64898591d7aa139af7b018310f68f"
+    },
+    {
       "logId": "2161305517876418151",
       "concreteTypeId": "1dfe7feadc1d9667a4351761230f948744068a090fe91b1bc6763a90ed5d3893"
     },
     {
       "logId": "16280289466020123285",
       "concreteTypeId": "e1ef35033ea9d2956f17c3292dea4a46ce7d61fdf37bbebe03b7b965073f43b5"
-    },
-    {
-      "logId": "10032608944051208538",
-      "concreteTypeId": "8b3afcadf894415a10b09fc3717487e33802c8ffbb030edafe84ca4a71b280bc"
     },
     {
       "logId": "12374875781412977518",
@@ -754,7 +1166,12 @@ const abi = {
     {
       "name": "OWNER",
       "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
-      "offset": 26016
+      "offset": 40952
+    },
+    {
+      "name": "DEPOSIT_ASSET_ID",
+      "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
+      "offset": 40920
     }
   ]
 };
@@ -766,6 +1183,10 @@ const storageSlots: StorageSlot[] = [
   },
   {
     "key": "a9e529a421eb524ecae94090cdc88a04ba27e7a8d3a24a6bdc584586a0ea7495",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+    "key": "ba8979e754a150238b85db41b3eec010bad00681d88d7b37e545cf8a2cd40e4c",
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   }
 ];
@@ -783,10 +1204,13 @@ export class LiquidityPoolInterface extends Interface {
     can_close_current_round: FunctionFragment;
     close_round: FunctionFragment;
     current_round_info: FunctionFragment;
+    deposit: FunctionFragment;
     initialize: FunctionFragment;
     request_collateral: FunctionFragment;
+    send_remaining_collateral: FunctionFragment;
     signal_withdrawal: FunctionFragment;
     start_vault: FunctionFragment;
+    total_collateral: FunctionFragment;
     withdrawal: FunctionFragment;
   };
 }
@@ -804,10 +1228,13 @@ export class LiquidityPool extends Contract {
     can_close_current_round: InvokeFunction<[], boolean>;
     close_round: InvokeFunction<[], void>;
     current_round_info: InvokeFunction<[], RoundInfoOutput>;
+    deposit: InvokeFunction<[], void>;
     initialize: InvokeFunction<[new_owner?: Option<IdentityInput>], void>;
     request_collateral: InvokeFunction<[amount: BigNumberish], void>;
+    send_remaining_collateral: InvokeFunction<[], void>;
     signal_withdrawal: InvokeFunction<[amount: BigNumberish], void>;
     start_vault: InvokeFunction<[], void>;
+    total_collateral: InvokeFunction<[], BN>;
     withdrawal: InvokeFunction<[], void>;
   };
 
