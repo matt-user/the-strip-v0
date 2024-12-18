@@ -1,5 +1,6 @@
 import { createConfig } from 'fuels';
 import dotenv from 'dotenv';
+
 import { providerUrl } from './lib';
 
 dotenv.config({
@@ -11,7 +12,7 @@ const fuelCorePort = +(process.env.VITE_FUEL_NODE_PORT as string) || 4000;
 
 export default createConfig({
 	workspace: '../contracts', // Path to your Sway workspace
-	output: './scripts/types', // Where your generated types will be saved
+	output: './frontend/src/types', // Where your generated types will be saved
 	fuelCorePort,
 	providerUrl,
 });

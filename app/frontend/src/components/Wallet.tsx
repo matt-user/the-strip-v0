@@ -1,16 +1,20 @@
 import { useDisconnect, useWallet, useBalance } from "@fuels/react";
 import { useEffect } from "react";
 
+import { isLocal, renderFormattedBalance } from "../../../lib";
+
+import { usdsAssetId } from "../utils/assetId";
+
 import Button from "./Button";
 import LocalFaucet from "./LocalFaucet";
-import { isLocal, renderFormattedBalance } from "../../../lib";
-import { usdsAssetId } from "../utils/assetId";
+import { useMintUSDS } from "@/hooks/useMintUSDS";
 
 export default function Wallet() {
   const { disconnect } = useDisconnect();
   const { wallet } = useWallet();
   const address = wallet?.address.toB256() || "";
   const { balance, refetch } = useBalance({ address, assetId: usdsAssetId });
+  const mintUSDS = useMintUSDS();
 
   useEffect(() => {
     refetch();
@@ -20,7 +24,7 @@ export default function Wallet() {
     const interval = setInterval(() => refetch(), 5000);
     return () => clearInterval(interval);
   }, [refetch]);
-  
+
   return (
     <>
       <div>
@@ -46,6 +50,9 @@ export default function Wallet() {
             className="w-2/3 bg-gray-800 rounded-md px-2 py-1 mr-3 truncate font-mono"
             disabled
           />
+          <Button onClick={() => mintUSDS.mutate()} className="w-1/3">
+            Mint
+          </Button>
           <Button onClick={() => refetch()} className="w-1/3">
             Refresh
           </Button>

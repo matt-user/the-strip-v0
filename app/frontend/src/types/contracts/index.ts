@@ -6,7 +6,13 @@
 
 /*
   Fuels version: 0.97.2
+  Forc version: 0.66.5
+  Fuel-Core version: 0.40.0
 */
 
+export { LiquidityPool } from './LiquidityPool';
+export { LiquidityPoolFactory } from './LiquidityPoolFactory';
+export { Game } from './Game';
+export { GameFactory } from './GameFactory';
 export { Usds } from './Usds';
 export { UsdsFactory } from './UsdsFactory';

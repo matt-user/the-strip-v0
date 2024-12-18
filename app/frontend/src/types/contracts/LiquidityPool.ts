@@ -6,6 +6,8 @@
 
 /*
   Fuels version: 0.97.2
+  Forc version: 0.66.5
+  Fuel-Core version: 0.40.0
 */
 
 import { Contract, Interface } from "fuels";
@@ -1338,7 +1340,7 @@ const abi = {
     {
       "name": "DEPOSIT_ASSET_ID",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 47736
+      "offset": 49616
     }
   ]
 };

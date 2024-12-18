@@ -96,7 +96,7 @@ impl SRC3 for Contract {
     #[storage(read, write)]
     fn mint(recipient: Identity, sub_id: Option<SubId>, amount: u64) {
         require(sub_id.is_some() && sub_id.unwrap() == DEFAULT_SUB_ID, "incorrect-sub-id");
-        require_access_owner();
+        //require_access_owner();
  
         let new_supply = storage.total_supply.read() + amount;
         storage

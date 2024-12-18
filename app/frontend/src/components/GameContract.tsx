@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useWallet } from "@fuels/react";
 
-import { Game, IdentityOutput, OutcomeInput, OutcomeOutput } from "../types/game/Game";
+import { Game, IdentityOutput, OutcomeInput, OutcomeOutput } from "@/types/contracts/Game";
 import Button from "./Button";
 import { gameContractAddress } from "../../../lib";
 import { useNotification } from "../hooks/useNotification";
