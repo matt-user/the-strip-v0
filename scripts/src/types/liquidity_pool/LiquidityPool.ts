@@ -20,7 +20,7 @@ import type {
   InvokeFunction,
 } from 'fuels';
 
-import type { Option, Enum } from "./common";
+import type { Enum } from "./common";
 
 export enum AccessErrorInput { NotOwner = 'NotOwner' };
 export enum AccessErrorOutput { NotOwner = 'NotOwner' };
@@ -51,7 +51,6 @@ export type RoundStartedInput = { round: BigNumberish, round_collateral: BigNumb
 export type RoundStartedOutput = { round: BN, round_collateral: BN };
 
 export type LiquidityPoolConfigurables = Partial<{
-  OWNER: IdentityInput;
   DEPOSIT_ASSET_ID: AssetIdInput;
 }>;
 
@@ -89,47 +88,39 @@ const abi = {
       "metadataTypeId": 4
     },
     {
-      "type": "enum std::option::Option<enum std::identity::Identity>",
-      "concreteTypeId": "253aea1197e8005518365bd24c8bc31f73a434fac0f7350e57696edfdd4850c2",
-      "metadataTypeId": 5,
-      "typeArguments": [
-        "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
-      ]
-    },
-    {
       "type": "enum sway_libs::ownership::errors::InitializationError",
       "concreteTypeId": "1dfe7feadc1d9667a4351761230f948744068a090fe91b1bc6763a90ed5d3893",
-      "metadataTypeId": 6
+      "metadataTypeId": 5
     },
     {
       "type": "enum sway_libs::pausable::errors::PauseError",
       "concreteTypeId": "8b3afcadf894415a10b09fc3717487e33802c8ffbb030edafe84ca4a71b280bc",
-      "metadataTypeId": 7
+      "metadataTypeId": 6
     },
     {
       "type": "struct Deposit",
       "concreteTypeId": "1d2ce56b7181bc4bbcfc46234dbd20eff7f64898591d7aa139af7b018310f68f",
-      "metadataTypeId": 9
+      "metadataTypeId": 7
     },
     {
       "type": "struct RoundInfo",
       "concreteTypeId": "ac37a60d585a9f59811cec711282c0d1b62da497752e294b7a8d306f6f64c333",
-      "metadataTypeId": 10
+      "metadataTypeId": 8
     },
     {
       "type": "struct RoundStarted",
       "concreteTypeId": "abbc63f552b47b6ec05ebba9e1249b1ee4a7c6ec7da80d710eb6dc7c2a5370eb",
-      "metadataTypeId": 11
+      "metadataTypeId": 9
     },
     {
       "type": "struct std::asset_id::AssetId",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "metadataTypeId": 13
+      "metadataTypeId": 11
     },
     {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
       "concreteTypeId": "e1ef35033ea9d2956f17c3292dea4a46ce7d61fdf37bbebe03b7b965073f43b5",
-      "metadataTypeId": 15
+      "metadataTypeId": 13
     },
     {
       "type": "u64",
@@ -221,34 +212,17 @@ const abi = {
       "components": [
         {
           "name": "Address",
-          "typeId": 12
+          "typeId": 10
         },
         {
           "name": "ContractId",
-          "typeId": 14
+          "typeId": 12
         }
-      ]
-    },
-    {
-      "type": "enum std::option::Option",
-      "metadataTypeId": 5,
-      "components": [
-        {
-          "name": "None",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "Some",
-          "typeId": 8
-        }
-      ],
-      "typeParameters": [
-        8
       ]
     },
     {
       "type": "enum sway_libs::ownership::errors::InitializationError",
-      "metadataTypeId": 6,
+      "metadataTypeId": 5,
       "components": [
         {
           "name": "CannotReinitialized",
@@ -258,7 +232,7 @@ const abi = {
     },
     {
       "type": "enum sway_libs::pausable::errors::PauseError",
-      "metadataTypeId": 7,
+      "metadataTypeId": 6,
       "components": [
         {
           "name": "Paused",
@@ -271,12 +245,8 @@ const abi = {
       ]
     },
     {
-      "type": "generic T",
-      "metadataTypeId": 8
-    },
-    {
       "type": "struct Deposit",
-      "metadataTypeId": 9,
+      "metadataTypeId": 7,
       "components": [
         {
           "name": "amount",
@@ -286,7 +256,7 @@ const abi = {
     },
     {
       "type": "struct RoundInfo",
-      "metadataTypeId": 10,
+      "metadataTypeId": 8,
       "components": [
         {
           "name": "round",
@@ -304,7 +274,7 @@ const abi = {
     },
     {
       "type": "struct RoundStarted",
-      "metadataTypeId": 11,
+      "metadataTypeId": 9,
       "components": [
         {
           "name": "round",
@@ -318,7 +288,7 @@ const abi = {
     },
     {
       "type": "struct std::address::Address",
-      "metadataTypeId": 12,
+      "metadataTypeId": 10,
       "components": [
         {
           "name": "bits",
@@ -328,7 +298,7 @@ const abi = {
     },
     {
       "type": "struct std::asset_id::AssetId",
-      "metadataTypeId": 13,
+      "metadataTypeId": 11,
       "components": [
         {
           "name": "bits",
@@ -338,7 +308,7 @@ const abi = {
     },
     {
       "type": "struct std::contract_id::ContractId",
-      "metadataTypeId": 14,
+      "metadataTypeId": 12,
       "components": [
         {
           "name": "bits",
@@ -348,7 +318,7 @@ const abi = {
     },
     {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
-      "metadataTypeId": 15,
+      "metadataTypeId": 13,
       "components": [
         {
           "name": "new_owner",
@@ -621,13 +591,13 @@ const abi = {
         {
           "name": "doc-comment",
           "arguments": [
-            " Reads: `1`"
+            " Reads: `2`"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " Writes: `2`"
+            " Writes: `3`"
           ]
         },
         {
@@ -644,10 +614,77 @@ const abi = {
       ]
     },
     {
+      "inputs": [],
+      "name": "deposit_for_user",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get deposit of a user in liquidity_pool"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * deposit: u64"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Storage Accesses"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * Reads: `1`"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
       "inputs": [
         {
           "name": "new_owner",
-          "concreteTypeId": "253aea1197e8005518365bd24c8bc31f73a434fac0f7350e57696edfdd4850c2"
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
         }
       ],
       "name": "initialize",
@@ -959,13 +996,13 @@ const abi = {
         {
           "name": "doc-comment",
           "arguments": [
-            " * Reads: `2 + 2n`"
+            " * Reads: `3 + 2n`"
           ]
         },
         {
           "name": "doc-comment",
           "arguments": [
-            " * Writes: `4 + 2n`"
+            " * Writes: `5 + 2n`"
           ]
         },
         {
@@ -1010,6 +1047,73 @@ const abi = {
           "name": "doc-comment",
           "arguments": [
             " * total_collatera: u64"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Storage Accesses"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * Reads: `1`"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
+      "name": "total_deposits",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get total deposits of liquidity pool"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * total_deposits: u64"
           ]
         },
         {
@@ -1164,14 +1268,9 @@ const abi = {
   "messagesTypes": [],
   "configurables": [
     {
-      "name": "OWNER",
-      "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
-      "offset": 40952
-    },
-    {
       "name": "DEPOSIT_ASSET_ID",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 40920
+      "offset": 41200
     }
   ]
 };
@@ -1187,6 +1286,10 @@ const storageSlots: StorageSlot[] = [
   },
   {
     "key": "ba8979e754a150238b85db41b3eec010bad00681d88d7b37e545cf8a2cd40e4c",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+    "key": "f0588a2f33e780d2c36e5f643ffe6ea1bb4c951abf93ac8f214c94bdc23bcbca",
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   }
 ];
@@ -1205,12 +1308,14 @@ export class LiquidityPoolInterface extends Interface {
     close_round: FunctionFragment;
     current_round_info: FunctionFragment;
     deposit: FunctionFragment;
+    deposit_for_user: FunctionFragment;
     initialize: FunctionFragment;
     request_collateral: FunctionFragment;
     send_remaining_collateral: FunctionFragment;
     signal_withdrawal: FunctionFragment;
     start_vault: FunctionFragment;
     total_collateral: FunctionFragment;
+    total_deposits: FunctionFragment;
     withdrawal: FunctionFragment;
   };
 }
@@ -1229,12 +1334,14 @@ export class LiquidityPool extends Contract {
     close_round: InvokeFunction<[], void>;
     current_round_info: InvokeFunction<[], RoundInfoOutput>;
     deposit: InvokeFunction<[], void>;
-    initialize: InvokeFunction<[new_owner?: Option<IdentityInput>], void>;
+    deposit_for_user: InvokeFunction<[], BN>;
+    initialize: InvokeFunction<[new_owner: IdentityInput], void>;
     request_collateral: InvokeFunction<[amount: BigNumberish], void>;
     send_remaining_collateral: InvokeFunction<[], void>;
     signal_withdrawal: InvokeFunction<[amount: BigNumberish], void>;
     start_vault: InvokeFunction<[], void>;
     total_collateral: InvokeFunction<[], BN>;
+    total_deposits: InvokeFunction<[], BN>;
     withdrawal: InvokeFunction<[], void>;
   };
 
