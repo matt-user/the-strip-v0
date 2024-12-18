@@ -39,6 +39,7 @@ storage {
     round_start_time: StorageMap<u64, u64> = StorageMap::<u64, u64> {},
     trading_markets_per_round: StorageMap<u64, StorageVec<ContractId>> = StorageMap::<u64, StorageVec<ContractId>> {},
     deposits: StorageMap<Identity, u64> = StorageMap {},
+    total_deposits: u64 = 0,
     has_deposited: StorageMap<Identity, bool> = StorageMap {},
     deposit_keys: StorageVec<Identity> = StorageVec {},
     collateral: StorageMap<Identity, u64> = StorageMap {},
@@ -140,6 +141,12 @@ abi LiquidityPool {
     #[payable]
     fn deposit();
 
+    #[storage(read)]
+    fn deposit_for_user() -> u64;
+
+    #[storage(read)]
+    fn total_deposits() -> u64;
+
     fn request_collateral(amount: u64);
 
     #[storage(read, write)]
@@ -187,8 +194,8 @@ impl LiquidityPool for Contract {
     ///
     /// # Number of Storage Accesses
     ///
-    /// * Reads: `2 + 2n`
-    /// * Writes: `4 + 2n`
+    /// * Reads: `3 + 2n`
+    /// * Writes: `5 + 2n`
     #[storage(read, write)]
     fn start_vault() {
         only_owner();
@@ -206,6 +213,7 @@ impl LiquidityPool for Contract {
         storage.has_vault_started.write(true);
 
         let mut total_collateral = storage.total_collateral.read();
+        let mut total_deposits = storage.total_deposits.read();
 
         let mut i = 0;
         while i < storage.deposit_keys.len() {
@@ -213,6 +221,9 @@ impl LiquidityPool for Contract {
             let value = storage.deposits.get(key).read(); // QED, we won't have a bad invariant here
             storage.collateral.insert(key, value); // move deposit to collateral
             total_collateral += value;
+
+            total_deposits -= value;
+
             storage.deposits.insert(key, 0); // 0 out the deposit
             i += 1;
         }
@@ -262,6 +273,7 @@ impl LiquidityPool for Contract {
 
         // Move collateral from `signaled_withdraws` to `withdraws`
         let mut total_collateral = storage.total_collateral.read();
+        let mut total_deposits = storage.total_deposits.read();
 
         let mut i = 0;
         while i < storage.deposit_keys.len() {
@@ -273,6 +285,7 @@ impl LiquidityPool for Contract {
             storage.collateral.insert(user, deposit + user_collateral);
             storage.deposits.insert(user, 0);
 
+            total_deposits -= deposit;
             total_collateral += deposit;
 
             // Move signalled withdraws to withdraws
@@ -305,8 +318,8 @@ impl LiquidityPool for Contract {
     ///
     /// # Number of Storage Accesses
     ///
-    /// Reads: `1`
-    /// Writes: `2`
+    /// Reads: `2`
+    /// Writes: `3`
     #[storage(read, write)]
     #[payable]
     fn deposit() {
@@ -324,6 +337,10 @@ impl LiquidityPool for Contract {
         let current_deposit = storage.deposits.get(sender).try_read().unwrap_or(0);
         let new_deposit = current_deposit + amount;
         storage.deposits.insert(sender, new_deposit);
+
+        let mut total_deposits = storage.total_deposits.read();
+        total_deposits += amount;
+
         let has_deposited = storage.has_deposited.get(sender).try_read().unwrap_or(false);
         if (!has_deposited) {
             storage.deposit_keys.push(sender);
@@ -429,6 +446,35 @@ impl LiquidityPool for Contract {
     #[storage(read)]
     fn total_collateral() -> u64 {
         storage.total_collateral.read()
+    }
+
+    /// Get total deposits of liquidity pool
+    ///
+    /// # Returns
+    ///
+    /// * total_deposits: u64
+    ///
+    /// # Storage Accesses
+    ///
+    /// * Reads: `1`
+    #[storage(read)]
+    fn total_deposits() -> u64 {
+        storage.total_deposits.read()
+    }
+
+    /// Get deposit of a user in liquidity_pool
+    ///
+    /// # Returns
+    ///
+    /// * deposit: u64
+    ///
+    /// # Storage Accesses
+    ///
+    /// * Reads: `1`
+    #[storage(read)]
+    fn deposit_for_user() -> u64 {
+        let sender = msg_sender().unwrap();
+        storage.deposits.get(sender).read()
     }
 }
 
