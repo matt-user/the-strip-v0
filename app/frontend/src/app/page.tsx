@@ -1,64 +1,85 @@
-'use client';
+"use client";
 
-import { hasSignMessageCustomCurve } from '@fuels/connectors';
-import {
-  useAccounts,
-  useConnectUI,
-  useCurrentConnector,
-  useDisconnect,
-  useIsConnected,
-  useWallet,
-} from '@fuels/react';
-import { pages } from 'next/dist/build/templates/app-page';
-import { useState } from 'react';
+import { useConnectUI, useIsConnected, useNetwork } from "@fuels/react";
+import { useEffect } from "react";
 
-enum Pages {
-  Home = 'Home',
-  Liquidity = 'Liquidity',
-  Games = 'Games',
-}
+import { useRouter } from "../hooks/useRouter";
+import Button from "../components/Button";
+import Info from "../components/Info";
+import Wallet from "../components/Wallet";
+import LiquidityPoolContract from "../components/Contract";
+import Faucet from "../components/Faucet";
+import { providerUrl } from "../../../lib";
 
-export default function PageContent() {
-  const [page, setPage] = useState(Pages.Home);
-  const { connect, error, isError, isConnecting } = useConnectUI();
-  const { disconnect } = useDisconnect();
-  const { isConnected } = useIsConnected();
-  const { accounts } = useAccounts();
-  const { wallet } = useWallet();
-  const { currentConnector } = useCurrentConnector();
+function App() {
+  const { connect } = useConnectUI();
+  const { isConnected, refetch } = useIsConnected();
+  const { network } = useNetwork();
+  const { view, views, setRoute } = useRouter();
+  const isConnectedToCorrectNetwork = network?.url === providerUrl;
+
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
   return (
-    <div className="h-screen flex flex-col bg-gradient-to-t from-gray-800 to-blue-700">
-      <header className="flex justify-between items-center p-4">
-        <button className="text-3xl font-bold text-white" onClick={() => setPage(Pages.Home)}>Strip</button>
-        <div className='flex space-x-32 text-white'>
-          <button className='text-lg px-4 py-2 text-white hover:bg-white hover:text-blue-800 rounded-full' onClick={() => {setPage(Pages.Liquidity)}}>Liquidity Pool</button>
-          <button className='text-lg px-4 py-2 text-white hover:bg-white hover:text-blue-800 rounded-full' onClick={() => {setPage(Pages.Games)}}>Games</button>
+    <main className="flex items-center justify-center lg:pt-6 text-zinc-50/90">
+      <h1 className="fixed top-4 left-4 text-3xl font-medium">Strip</h1>
+      <div id="container" className="mx-8 mb-32 w-full max-w-6xl">
+        <div className="gradient-border rounded-2xl">
+          <Info />
+          <div className="col-span-5">
+            <div className="gradient-border h-full rounded-xl bg-gradient-to-b from-blue-100 to-blue-500 fixed top-4 right-4">
+              {!isConnected && (
+                <section className="flex h-full flex-col justify-center space-y-6 px-4 py-8 lg:px-[25%]">
+                  <Button onClick={() => connect()}>Connect Wallet</Button>
+                </section>
+              )}
+
+              {isConnected && !isConnectedToCorrectNetwork && (
+                <section className="flex h-full flex-col justify-center space-y-6 px-4 py-8">
+                  <p className="text-center">
+                    You are connected to the wrong network. Please switch to{" "}
+                    <a
+                      href={providerUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-green-500/80 transition-colors hover:text-green-500"
+                    >
+                      {providerUrl}
+                    </a>
+                    &nbsp;in your wallet.
+                  </p>
+                </section>
+              )}
+
+              {isConnected && isConnectedToCorrectNetwork && (
+                <section className="flex h-full flex-col justify-center space-y-6 px-4 py-8">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {views.map((viewName) => (
+                      <Button
+                        key={viewName}
+                        className="w-full sm:flex-1 capitalize"
+                        color={view === viewName ? "primary" : "inactive"}
+                        onClick={() => setRoute(viewName)}
+                      >
+                        {viewName}
+                      </Button>
+                    ))}
+                  </div>
+
+                  {view === "Wallet" && <Wallet />}
+                  {view === "Liqudity Pools" && <LiquidityPoolContract />}
+                  {/* {view === "Games" && <GameContract />} */}
+                  {view === "Faucet" && <Faucet />}
+                </section>
+              )}
+            </div>
+          </div>
         </div>
-        <div className="text-lg px-4 py-2 text-white hover:bg-white hover:text-blue-800 rounded-full">
-          {isConnected ? (
-            <button onClick={() => disconnect()}>
-              {wallet ? `${wallet.address.toString().substr(0, 10)}...` : 'Disconnect'}
-            </button>
-          ) : (
-            <button onClick={() => connect()} disabled={isConnecting}>
-              {isConnecting ? 'Connecting...' : 'Connect'}
-            </button>
-          )}
-        </div>
-      </header>
-      <main className="flex-grow ">
-      {isError && <p className="Error">{error?.message}</p>}
-      {page === Pages.Home && (
-  <div className="flex items-center justify-center h-full">
-    <h1 className="text-5xl font-bold text-white">
-      The first fully decentralised Casino
-    </h1>
-  </div>
-)}
-      {page === Pages.Liquidity && (<div>Liquidity</div>)}
-      {page === Pages.Games && (<div>Games</div>)}
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }
+
+export default App;

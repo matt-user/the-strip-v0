@@ -1,2 +1,16 @@
-# the-strip-v0
-npm fuels typegen -i ./out/release/usds-abi.json -o ./types
+# The Strip
+
+A simple p2p casino
+
+## Getting Started
+
+```bash
+cd contracts && forc build
+```
+
+```bash
+cd app && pnpm install
+```
+
+```bash
+cd app/frontend && pnpm dev
