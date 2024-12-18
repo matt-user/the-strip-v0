@@ -29,7 +29,6 @@ use standards::src5::{SRC5, State};
 const ROUND_LENGTH_SECS = 604800;
 
 configurable {
-    OWNER: Identity = Identity::Address(Address::from(0x656A68f0d8Fb82505BCD2bE28F6B7600cf427D828f3E3F9AAcdEf03a12D8f16C)),
     DEPOSIT_ASSET_ID: AssetId = AssetId::zero(),
 }
 
@@ -123,7 +122,7 @@ struct RoundInfo {
 
 abi LiquidityPool {
     #[storage(write)]
-    fn initialize(new_owner: Option<Identity>);
+    fn initialize(new_owner: Identity);
 
     #[storage(read, write)]
     fn start_vault();
@@ -177,11 +176,8 @@ impl LiquidityPool for Contract {
     ///
     /// * Writes: `1`
     #[storage(write)]
-    fn initialize(new_owner: Option<Identity>) {
-        match new_owner {
-            None => initialize_ownership(OWNER),
-            Some(new_owner) => initialize_ownership(new_owner),
-        }
+    fn initialize(new_owner: Identity) {
+        initialize_ownership(new_owner);
     }
 
     /// Start the vault and begin round #1
@@ -228,6 +224,7 @@ impl LiquidityPool for Contract {
             i += 1;
         }
         storage.total_collateral.write(total_collateral);
+        storage.total_deposits.write(total_deposits);
 
         // TODO: emit event info about collateral and deposits
         log(RoundStarted {
@@ -301,6 +298,7 @@ impl LiquidityPool for Contract {
 
             i += 1;
         }
+        storage.total_deposits.write(total_deposits);
         storage.total_collateral.write(total_collateral);
     }
 
@@ -338,8 +336,7 @@ impl LiquidityPool for Contract {
         let new_deposit = current_deposit + amount;
         storage.deposits.insert(sender, new_deposit);
 
-        let mut total_deposits = storage.total_deposits.read();
-        total_deposits += amount;
+        storage.total_deposits.write(storage.total_deposits.read() + amount);
 
         let has_deposited = storage.has_deposited.get(sender).try_read().unwrap_or(false);
         if (!has_deposited) {
@@ -514,18 +511,6 @@ fn owner_uninitialized() {
 
     assert(owner == State::Uninitialized);
 }
-
-//#[test]
-// fn can_initialize_owner() {
-//     let owner_contract = abi(SRC5, CONTRACT_ID);
-//     let liquidity_pool_contract = abi(LiquidityPool, CONTRACT_ID);
-
-//     liquidity_pool_contract.initialize();
-//     let owner = owner_contract.owner();
-
-//     assert(owner == State::Initialized(OWNER));
-// }
-
 
 #[test]
 fn initially_unpaused() {

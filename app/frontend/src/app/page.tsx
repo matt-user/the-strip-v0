@@ -7,7 +7,7 @@ import { useRouter } from "../hooks/useRouter";
 import Button from "../components/Button";
 import Info from "../components/Info";
 import Wallet from "../components/Wallet";
-import LiquidityPoolContract from "../components/Contract";
+import LiquidityPoolContract from "../components/LiquidityPoolContract";
 import Faucet from "../components/Faucet";
 import { providerUrl } from "../../../lib";
 
@@ -69,7 +69,7 @@ function App() {
                   </div>
 
                   {view === "Wallet" && <Wallet />}
-                  {view === "Liqudity Pools" && <LiquidityPoolContract />}
+                  {view === "Liqudity Pool" && <LiquidityPoolContract />}
                   {/* {view === "Games" && <GameContract />} */}
                   {view === "Faucet" && <Faucet />}
                 </section>
