@@ -42,7 +42,7 @@ storage {
     deposit_keys: StorageVec<Identity> = StorageVec {},
     collateral: StorageMap<Identity, u64> = StorageMap {},
     withdraws: StorageMap<Identity, u64> = StorageMap {},
-    signal_withdrawals: StorageMap<Identity, u64> = StorageMap {},
+    signalled_withdraws: StorageMap<Identity, u64> = StorageMap {},
     total_collateral: u64 = 0,
 }
 
@@ -239,7 +239,7 @@ impl LiquidityPool for Contract {
     ///
     /// # Additional Information
     ///
-    /// This function also exercises options and closes markets.
+    /// This function moves collateral from `signaled_withdraws` to `withdraws`
     ///
     /// # Reverts
     ///
@@ -251,7 +251,30 @@ impl LiquidityPool for Contract {
             LiquidityPoolError::CannotCloseCurrentRound,
         );
 
-        // Exercise market options
+        // Move collateral from `signaled_withdraws` to `withdraws`
+        let mut total_collateral = storage.total_collateral.read();
+
+        let mut i = 0;
+        while i < storage.deposit_keys.len() {
+            let user = storage.deposit_keys.get(i).unwrap().read();
+
+            // Move deposits to collateral
+            let deposit = storage.deposits.get(user).read();
+            let user_collateral = storage.collateral.get(user).read(); 
+            storage.collateral.insert(user, deposit + user_collateral);
+            storage.deposits.insert(user, 0);
+
+            total_collateral += deposit;
+
+            // Move signalled withdraws to withdraws
+            let signaled_withdraw = storage.signaled_withdraws.get(user).read();
+            let user_withdraws = storage.withdraws.get(user).read();
+            storage.withdraws.insert(user, signaled_withdraw + user_withdraws);
+            storage.signal_withdraws.insert(user, 0);
+
+            i += 1;
+        }
+        storage.total_collateral.write(total_collateral);
     }
 
     #[storage(read, write)]
