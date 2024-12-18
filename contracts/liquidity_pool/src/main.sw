@@ -7,6 +7,7 @@ use std::{
     hash::Hash,
     storage::storage_vec::*,
     vec::*,
+    asset::transfer,
 };
 use sway_libs::{
     ownership::{
@@ -42,6 +43,7 @@ storage {
     collateral: StorageMap<Identity, u64> = StorageMap {},
     withdraws: StorageMap<Identity, u64> = StorageMap {},
     signal_withdrawals: StorageMap<Identity, u64> = StorageMap {},
+    total_collateral: u64 = 0,
 }
 
 impl SRC5 for Contract {
@@ -142,6 +144,9 @@ abi LiquidityPool {
 
     #[storage(read, write)]
     fn withdrawal();
+
+   #[storage(read, write)]
+   fn send_remaining_collateral();
 }
 
 impl LiquidityPool for Contract {
@@ -176,8 +181,8 @@ impl LiquidityPool for Contract {
     ///
     /// # Number of Storage Accesses
     ///
-    /// * Reads: `1 + 2n`
-    /// * Writes: `3 + 2n`
+    /// * Reads: `2 + 2n`
+    /// * Writes: `4 + 2n`
     #[storage(read, write)]
     fn start_vault() {
         only_owner();
@@ -194,15 +199,20 @@ impl LiquidityPool for Contract {
         storage.round_start_time.insert(round, timestamp());
         storage.has_vault_started.write(true);
 
+        let mut total_collateral = storage.total_collateral.read();
+
         let mut i = 0;
         while i < storage.deposit_keys.len() {
             let key = storage.deposit_keys.get(i).unwrap().read(); // QED, unwrap is fine
             let value = storage.deposits.get(key).read(); // QED, we won't have a bad invariant here
             storage.collateral.insert(key, value); // move deposit to collateral
+            total_collateral += value;
             storage.deposits.insert(key, 0); // 0 out the deposit
             i += 1;
         }
+        storage.total_collateral.write(total_collateral);
 
+        // TODO: emit event info about collateral and deposits
         log(RoundStarted { round });
     }
 
@@ -277,6 +287,7 @@ impl LiquidityPool for Contract {
         let current_deposit = storage.deposits.get(sender).read();
         let new_deposit = current_deposit + amount;
         storage.deposits.insert(sender, new_deposit);
+        // TODO: we need to check if sender already exists in deposit_keys.
         storage.deposit_keys.push(sender);
 
         log(Deposit {
@@ -290,10 +301,10 @@ impl LiquidityPool for Contract {
     ///
     /// Amount must be at least 10% of a user's total deposit
     /// A user can call `withdrawal` after the current round has closed
+    ///
     /// # Reverts:
     ///
     /// * When the vault hasn't been started
-    /// * When the round hasn't completed
     /// * When there is no collateral in the vault
     /// * When the withdrawal < 10% of collateral
     /// * When the withdrawal > collateral
@@ -310,13 +321,14 @@ impl LiquidityPool for Contract {
 
         let round = storage.current_round.read();
 
-        require(
-            timestamp() > (storage
-                    .round_start_time
-                    .get(round)
-                    .read() + ROUND_LENGTH_SECS),
-            LiquidityPoolError::MustSignalWithdrawalAfterRoundCompletion,
-        );
+        // @rymnc user's can signal withdrawal at any time
+        // require(
+        //     timestamp() > (storage
+        //             .round_start_time
+        //             .get(round)
+        //             .read() + ROUND_LENGTH_SECS),
+        //     LiquidityPoolError::MustSignalWithdrawalAfterRoundCompletion,
+        // );
 
         let sender = msg_sender().unwrap();
 
@@ -327,7 +339,7 @@ impl LiquidityPool for Contract {
             LiquidityPoolError::WithdrawalMustBeLarger,
         );
         require(
-            amount < collateral,
+            amount <= collateral,
             LiquidityPoolError::WithdrawalMustBeSmaller,
         );
 
@@ -347,7 +359,6 @@ impl LiquidityPool for Contract {
     /// # Reverts:
     ///
     /// * When the vault hasn't been started
-    /// * When the round hasn't completed
     /// * When there are no funds available for withdrawal
     ///
     ///
@@ -363,22 +374,30 @@ impl LiquidityPool for Contract {
 
         let round = storage.current_round.read();
 
-        require(
-            timestamp() > (storage
-                    .round_start_time
-                    .get(round)
-                    .read() + ROUND_LENGTH_SECS),
-            LiquidityPoolError::MustWithdrawAfterRoundCompletion,
-        );
+        // @rymnc users can withdraw funds at any time.  Funds signaled for withdrawal will be transferred to `withdraws` after `close_round` is called
+        // require(
+        //     timestamp() > (storage
+        //             .round_start_time
+        //             .get(round)
+        //             .read() + ROUND_LENGTH_SECS),
+        //     LiquidityPoolError::MustWithdrawAfterRoundCompletion,
+        // );
 
         let sender = msg_sender().unwrap();
-        let withdrawal_amount = storage.signal_withdrawals.get(sender).read();
+        let withdrawal_amount = storage.withdraws.get(sender).read();
 
         require(withdrawal_amount > 0, LiquidityPoolError::NoFundsToWithdraw);
         // TODO: maybe add a check here for contract balance and ensure it is > withdrawal_amount
         transfer(sender, DEPOSIT_ASSET_ID, withdrawal_amount);
         storage.signal_withdrawals.insert(sender, 0);
+        // TODO: emit event for withdrawals
     }
+
+   // Game Contract Sends unsused collateral.
+   #[storage(read, write)]
+   fn send_remaining_collateral() {
+
+   }
 }
 
 /// Checks if all conditions are met to close the round
