@@ -100,6 +100,8 @@ enum LiquidityPoolError {
 struct RoundStarted {
     /// The new round starting
     pub round: u64,
+    /// The collateral in the round
+    pub round_collateral: u64,
 }
 
 /// Logged when a user deposits funds
@@ -217,7 +219,10 @@ impl LiquidityPool for Contract {
         storage.total_collateral.write(total_collateral);
 
         // TODO: emit event info about collateral and deposits
-        log(RoundStarted { round });
+        log(RoundStarted {
+            round,
+            round_collateral: total_collateral,
+        });
     }
 
     /// Get the current round info
