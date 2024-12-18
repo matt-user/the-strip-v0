@@ -4,6 +4,14 @@ library;
 struct RoundStarted {
     /// The new round starting
     pub round: u64,
+    /// The collateral in the round
+    pub round_collateral: u64,
+}
+
+/// Logged when a user deposits funds
+struct Deposit {
+    /// The amount deposited
+    pub amount: u64,
 }
 
 /// Represents round info
@@ -18,7 +26,7 @@ struct RoundInfo {
 
 abi LiquidityPool {
     #[storage(write)]
-    fn initialize(new_owner: Option<Identity>);
+    fn initialize(new_owner: Identity, game_contract_id: ContractId);
 
     #[storage(read, write)]
     fn start_vault();
@@ -33,6 +41,16 @@ abi LiquidityPool {
     fn can_close_current_round() -> bool;
 
     #[storage(read, write)]
+    #[payable]
+    fn deposit();
+
+    #[storage(read)]
+    fn deposit_for_user() -> u64;
+
+    #[storage(read)]
+    fn total_deposits() -> u64;
+
+    #[storage(read, write)]
     fn request_collateral(amount: u64);
 
     #[storage(read, write)]
@@ -40,4 +58,10 @@ abi LiquidityPool {
 
     #[storage(read, write)]
     fn withdrawal();
+
+    #[storage(read, write)]
+    fn send_remaining_collateral();
+
+    #[storage(read)]
+    fn available_collateral() -> u64;
 }

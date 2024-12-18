@@ -28,8 +28,8 @@ export type IdentityInput = Enum<{ Address: AddressInput, ContractId: ContractId
 export type IdentityOutput = Enum<{ Address: AddressOutput, ContractId: ContractIdOutput }>;
 export enum InitializationErrorInput { CannotReinitialized = 'CannotReinitialized' };
 export enum InitializationErrorOutput { CannotReinitialized = 'CannotReinitialized' };
-export enum LiquidityPoolErrorInput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound', WrongDepositedAsset = 'WrongDepositedAsset', VaultNotStarted = 'VaultNotStarted', NoCollateralInVault = 'NoCollateralInVault', MustSignalWithdrawalAfterRoundCompletion = 'MustSignalWithdrawalAfterRoundCompletion', WithdrawalMustBeLarger = 'WithdrawalMustBeLarger', WithdrawalMustBeSmaller = 'WithdrawalMustBeSmaller', MustWithdrawAfterRoundCompletion = 'MustWithdrawAfterRoundCompletion', NoFundsToWithdraw = 'NoFundsToWithdraw' };
-export enum LiquidityPoolErrorOutput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound', WrongDepositedAsset = 'WrongDepositedAsset', VaultNotStarted = 'VaultNotStarted', NoCollateralInVault = 'NoCollateralInVault', MustSignalWithdrawalAfterRoundCompletion = 'MustSignalWithdrawalAfterRoundCompletion', WithdrawalMustBeLarger = 'WithdrawalMustBeLarger', WithdrawalMustBeSmaller = 'WithdrawalMustBeSmaller', MustWithdrawAfterRoundCompletion = 'MustWithdrawAfterRoundCompletion', NoFundsToWithdraw = 'NoFundsToWithdraw' };
+export enum LiquidityPoolErrorInput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound', WrongDepositedAsset = 'WrongDepositedAsset', VaultNotStarted = 'VaultNotStarted', NoCollateralInVault = 'NoCollateralInVault', MustSignalWithdrawalAfterRoundCompletion = 'MustSignalWithdrawalAfterRoundCompletion', WithdrawalMustBeLarger = 'WithdrawalMustBeLarger', WithdrawalMustBeSmaller = 'WithdrawalMustBeSmaller', MustWithdrawAfterRoundCompletion = 'MustWithdrawAfterRoundCompletion', NoFundsToWithdraw = 'NoFundsToWithdraw', CannotRequestCollateral = 'CannotRequestCollateral', MustRequestCollateralLessThanTotal = 'MustRequestCollateralLessThanTotal', CannotDepositCollateral = 'CannotDepositCollateral', DepositedAmountGt0 = 'DepositedAmountGt0' };
+export enum LiquidityPoolErrorOutput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound', WrongDepositedAsset = 'WrongDepositedAsset', VaultNotStarted = 'VaultNotStarted', NoCollateralInVault = 'NoCollateralInVault', MustSignalWithdrawalAfterRoundCompletion = 'MustSignalWithdrawalAfterRoundCompletion', WithdrawalMustBeLarger = 'WithdrawalMustBeLarger', WithdrawalMustBeSmaller = 'WithdrawalMustBeSmaller', MustWithdrawAfterRoundCompletion = 'MustWithdrawAfterRoundCompletion', NoFundsToWithdraw = 'NoFundsToWithdraw', CannotRequestCollateral = 'CannotRequestCollateral', MustRequestCollateralLessThanTotal = 'MustRequestCollateralLessThanTotal', CannotDepositCollateral = 'CannotDepositCollateral', DepositedAmountGt0 = 'DepositedAmountGt0' };
 export enum PauseErrorInput { Paused = 'Paused', NotPaused = 'NotPaused' };
 export enum PauseErrorOutput { Paused = 'Paused', NotPaused = 'NotPaused' };
 export type StateInput = Enum<{ Uninitialized: undefined, Initialized: IdentityInput, Revoked: undefined }>;
@@ -118,6 +118,11 @@ const abi = {
       "metadataTypeId": 11
     },
     {
+      "type": "struct std::contract_id::ContractId",
+      "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
+      "metadataTypeId": 12
+    },
+    {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
       "concreteTypeId": "e1ef35033ea9d2956f17c3292dea4a46ce7d61fdf37bbebe03b7b965073f43b5",
       "metadataTypeId": 13
@@ -174,6 +179,22 @@ const abi = {
         },
         {
           "name": "NoFundsToWithdraw",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "CannotRequestCollateral",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "MustRequestCollateralLessThanTotal",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "CannotDepositCollateral",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "DepositedAmountGt0",
           "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
         }
       ]
@@ -376,6 +397,73 @@ const abi = {
           "name": "storage",
           "arguments": [
             "write"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
+      "name": "available_collateral",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Get total collateral of liquidity pool"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Returns"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * total_collatera: u64"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Storage Accesses"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * Reads: `1`"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
           ]
         }
       ]
@@ -685,6 +773,10 @@ const abi = {
         {
           "name": "new_owner",
           "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
+        },
+        {
+          "name": "game_contract_id",
+          "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54"
         }
       ],
       "name": "initialize",
@@ -765,7 +857,7 @@ const abi = {
         {
           "name": "doc-comment",
           "arguments": [
-            " * Writes: `1`"
+            " * Writes: `2`"
           ]
         },
         {
@@ -785,7 +877,15 @@ const abi = {
       ],
       "name": "request_collateral",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
-      "attributes": null
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
     },
     {
       "inputs": [],
@@ -1016,73 +1116,6 @@ const abi = {
     },
     {
       "inputs": [],
-      "name": "total_collateral",
-      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
-      "attributes": [
-        {
-          "name": "doc-comment",
-          "arguments": [
-            " Get total collateral of liquidity pool"
-          ]
-        },
-        {
-          "name": "doc-comment",
-          "arguments": [
-            ""
-          ]
-        },
-        {
-          "name": "doc-comment",
-          "arguments": [
-            " # Returns"
-          ]
-        },
-        {
-          "name": "doc-comment",
-          "arguments": [
-            ""
-          ]
-        },
-        {
-          "name": "doc-comment",
-          "arguments": [
-            " * total_collatera: u64"
-          ]
-        },
-        {
-          "name": "doc-comment",
-          "arguments": [
-            ""
-          ]
-        },
-        {
-          "name": "doc-comment",
-          "arguments": [
-            " # Storage Accesses"
-          ]
-        },
-        {
-          "name": "doc-comment",
-          "arguments": [
-            ""
-          ]
-        },
-        {
-          "name": "doc-comment",
-          "arguments": [
-            " * Reads: `1`"
-          ]
-        },
-        {
-          "name": "storage",
-          "arguments": [
-            "read"
-          ]
-        }
-      ]
-    },
-    {
-      "inputs": [],
       "name": "total_deposits",
       "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
       "attributes": [
@@ -1270,7 +1303,7 @@ const abi = {
     {
       "name": "DEPOSIT_ASSET_ID",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 41816
+      "offset": 47056
     }
   ]
 };
@@ -1281,11 +1314,15 @@ const storageSlots: StorageSlot[] = [
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   },
   {
+    "key": "3c3161bdebde8381a79ce381468641c4fb0ae77ea8ceda5bd07a163562c7b2ea",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
     "key": "a9e529a421eb524ecae94090cdc88a04ba27e7a8d3a24a6bdc584586a0ea7495",
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   },
   {
-    "key": "ba8979e754a150238b85db41b3eec010bad00681d88d7b37e545cf8a2cd40e4c",
+    "key": "d021312a073214d1c1dae221987ac58a8dc6696fc52b563bb8e5b983df693ce3",
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   },
   {
@@ -1304,6 +1341,7 @@ export class LiquidityPoolInterface extends Interface {
     is_paused: FunctionFragment;
     pause: FunctionFragment;
     unpause: FunctionFragment;
+    available_collateral: FunctionFragment;
     can_close_current_round: FunctionFragment;
     close_round: FunctionFragment;
     current_round_info: FunctionFragment;
@@ -1314,7 +1352,6 @@ export class LiquidityPoolInterface extends Interface {
     send_remaining_collateral: FunctionFragment;
     signal_withdrawal: FunctionFragment;
     start_vault: FunctionFragment;
-    total_collateral: FunctionFragment;
     total_deposits: FunctionFragment;
     withdrawal: FunctionFragment;
   };
@@ -1330,17 +1367,17 @@ export class LiquidityPool extends Contract {
     is_paused: InvokeFunction<[], boolean>;
     pause: InvokeFunction<[], void>;
     unpause: InvokeFunction<[], void>;
+    available_collateral: InvokeFunction<[], BN>;
     can_close_current_round: InvokeFunction<[], boolean>;
     close_round: InvokeFunction<[], void>;
     current_round_info: InvokeFunction<[], RoundInfoOutput>;
     deposit: InvokeFunction<[], void>;
     deposit_for_user: InvokeFunction<[], BN>;
-    initialize: InvokeFunction<[new_owner: IdentityInput], void>;
+    initialize: InvokeFunction<[new_owner: IdentityInput, game_contract_id: ContractIdInput], void>;
     request_collateral: InvokeFunction<[amount: BigNumberish], void>;
     send_remaining_collateral: InvokeFunction<[], void>;
     signal_withdrawal: InvokeFunction<[amount: BigNumberish], void>;
     start_vault: InvokeFunction<[], void>;
-    total_collateral: InvokeFunction<[], BN>;
     total_deposits: InvokeFunction<[], BN>;
     withdrawal: InvokeFunction<[], void>;
   };
