@@ -20,7 +20,7 @@ import type {
   InvokeFunction,
 } from 'fuels';
 
-import type { Enum } from "./common";
+import type { Enum, Result } from "./common";
 
 export enum AccessErrorInput { NotOwner = 'NotOwner' };
 export enum AccessErrorOutput { NotOwner = 'NotOwner' };
@@ -88,44 +88,53 @@ const abi = {
       "metadataTypeId": 4
     },
     {
+      "type": "enum std::result::Result<(),enum LiquidityPoolError>",
+      "concreteTypeId": "f4b351b641758c52ac41a33c9bd2d2a0ede6a68b14eed11fc50a3d1501039c4e",
+      "metadataTypeId": 5,
+      "typeArguments": [
+        "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
+        "f0341066f61d2e6c5cbf9909d1098acc8887e4d6a27ce1259b340479741bba8f"
+      ]
+    },
+    {
       "type": "enum sway_libs::ownership::errors::InitializationError",
       "concreteTypeId": "1dfe7feadc1d9667a4351761230f948744068a090fe91b1bc6763a90ed5d3893",
-      "metadataTypeId": 5
+      "metadataTypeId": 6
     },
     {
       "type": "enum sway_libs::pausable::errors::PauseError",
       "concreteTypeId": "8b3afcadf894415a10b09fc3717487e33802c8ffbb030edafe84ca4a71b280bc",
-      "metadataTypeId": 6
+      "metadataTypeId": 7
     },
     {
       "type": "struct Deposit",
       "concreteTypeId": "1d2ce56b7181bc4bbcfc46234dbd20eff7f64898591d7aa139af7b018310f68f",
-      "metadataTypeId": 7
+      "metadataTypeId": 10
     },
     {
       "type": "struct RoundInfo",
       "concreteTypeId": "ac37a60d585a9f59811cec711282c0d1b62da497752e294b7a8d306f6f64c333",
-      "metadataTypeId": 8
+      "metadataTypeId": 11
     },
     {
       "type": "struct RoundStarted",
       "concreteTypeId": "abbc63f552b47b6ec05ebba9e1249b1ee4a7c6ec7da80d710eb6dc7c2a5370eb",
-      "metadataTypeId": 9
+      "metadataTypeId": 12
     },
     {
       "type": "struct std::asset_id::AssetId",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "metadataTypeId": 11
+      "metadataTypeId": 14
     },
     {
       "type": "struct std::contract_id::ContractId",
       "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
-      "metadataTypeId": 12
+      "metadataTypeId": 15
     },
     {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
       "concreteTypeId": "e1ef35033ea9d2956f17c3292dea4a46ce7d61fdf37bbebe03b7b965073f43b5",
-      "metadataTypeId": 13
+      "metadataTypeId": 16
     },
     {
       "type": "u64",
@@ -233,17 +242,35 @@ const abi = {
       "components": [
         {
           "name": "Address",
-          "typeId": 10
+          "typeId": 13
         },
         {
           "name": "ContractId",
-          "typeId": 12
+          "typeId": 15
         }
       ]
     },
     {
-      "type": "enum sway_libs::ownership::errors::InitializationError",
+      "type": "enum std::result::Result",
       "metadataTypeId": 5,
+      "components": [
+        {
+          "name": "Ok",
+          "typeId": 9
+        },
+        {
+          "name": "Err",
+          "typeId": 8
+        }
+      ],
+      "typeParameters": [
+        9,
+        8
+      ]
+    },
+    {
+      "type": "enum sway_libs::ownership::errors::InitializationError",
+      "metadataTypeId": 6,
       "components": [
         {
           "name": "CannotReinitialized",
@@ -253,7 +280,7 @@ const abi = {
     },
     {
       "type": "enum sway_libs::pausable::errors::PauseError",
-      "metadataTypeId": 6,
+      "metadataTypeId": 7,
       "components": [
         {
           "name": "Paused",
@@ -266,8 +293,16 @@ const abi = {
       ]
     },
     {
+      "type": "generic E",
+      "metadataTypeId": 8
+    },
+    {
+      "type": "generic T",
+      "metadataTypeId": 9
+    },
+    {
       "type": "struct Deposit",
-      "metadataTypeId": 7,
+      "metadataTypeId": 10,
       "components": [
         {
           "name": "amount",
@@ -277,7 +312,7 @@ const abi = {
     },
     {
       "type": "struct RoundInfo",
-      "metadataTypeId": 8,
+      "metadataTypeId": 11,
       "components": [
         {
           "name": "round",
@@ -295,7 +330,7 @@ const abi = {
     },
     {
       "type": "struct RoundStarted",
-      "metadataTypeId": 9,
+      "metadataTypeId": 12,
       "components": [
         {
           "name": "round",
@@ -309,7 +344,7 @@ const abi = {
     },
     {
       "type": "struct std::address::Address",
-      "metadataTypeId": 10,
+      "metadataTypeId": 13,
       "components": [
         {
           "name": "bits",
@@ -319,7 +354,7 @@ const abi = {
     },
     {
       "type": "struct std::asset_id::AssetId",
-      "metadataTypeId": 11,
+      "metadataTypeId": 14,
       "components": [
         {
           "name": "bits",
@@ -329,7 +364,7 @@ const abi = {
     },
     {
       "type": "struct std::contract_id::ContractId",
-      "metadataTypeId": 12,
+      "metadataTypeId": 15,
       "components": [
         {
           "name": "bits",
@@ -339,7 +374,7 @@ const abi = {
     },
     {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
-      "metadataTypeId": 13,
+      "metadataTypeId": 16,
       "components": [
         {
           "name": "new_owner",
@@ -876,7 +911,7 @@ const abi = {
         }
       ],
       "name": "request_collateral",
-      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
+      "output": "f4b351b641758c52ac41a33c9bd2d2a0ede6a68b14eed11fc50a3d1501039c4e",
       "attributes": [
         {
           "name": "storage",
@@ -890,7 +925,7 @@ const abi = {
     {
       "inputs": [],
       "name": "send_remaining_collateral",
-      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
+      "output": "f4b351b641758c52ac41a33c9bd2d2a0ede6a68b14eed11fc50a3d1501039c4e",
       "attributes": [
         {
           "name": "storage",
@@ -1303,7 +1338,7 @@ const abi = {
     {
       "name": "DEPOSIT_ASSET_ID",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 47056
+      "offset": 47736
     }
   ]
 };
@@ -1374,8 +1409,8 @@ export class LiquidityPool extends Contract {
     deposit: InvokeFunction<[], void>;
     deposit_for_user: InvokeFunction<[], BN>;
     initialize: InvokeFunction<[new_owner: IdentityInput, game_contract_id: ContractIdInput], void>;
-    request_collateral: InvokeFunction<[amount: BigNumberish], void>;
-    send_remaining_collateral: InvokeFunction<[], void>;
+    request_collateral: InvokeFunction<[amount: BigNumberish], Result<void, LiquidityPoolErrorOutput>>;
+    send_remaining_collateral: InvokeFunction<[], Result<void, LiquidityPoolErrorOutput>>;
     signal_withdrawal: InvokeFunction<[amount: BigNumberish], void>;
     start_vault: InvokeFunction<[], void>;
     total_deposits: InvokeFunction<[], BN>;

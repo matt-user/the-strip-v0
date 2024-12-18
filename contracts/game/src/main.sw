@@ -26,7 +26,7 @@ use sway_libs::{
 };
 use standards::src5::{SRC5, State};
 use vrf_abi::{randomness::RandomnessState, Vrf};
-use liquidity_pool_abi::LiquidityPool;
+use liquidity_pool_abi::*;
 use std::array_conversions::b256::*;
 
 const VRF_ADDR = 0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc4828d;
@@ -97,7 +97,7 @@ abi Game {
     // call needs to include liquidity pool
     #[storage(write, read)]
     #[payable]
-    fn place_bet(outcome: Outcome);
+    fn place_bet(outcome: Outcome) -> Result<(), LiquidityPoolError>;
 
     // Request the contract to generate a random number
     // locks bets, no users can place bets after this function call
@@ -109,7 +109,7 @@ abi Game {
     // Fulfill the random number request
     // payout bets and send remaining collateral to liquidity pool
     #[storage(write, read)]
-    fn fulfill_random();
+    fn fulfill_random() -> Result<(), LiquidityPoolError>;
 
     // Get all the bets
     #[storage(read)]
@@ -143,16 +143,21 @@ impl Game for Contract {
 
     #[storage(write, read)]
     #[payable]
-    fn place_bet(outcome: Outcome) {
+    fn place_bet(outcome: Outcome) -> Result<(), LiquidityPoolError> {
         require_not_paused();
         assert(msg_asset_id() == BASE_ASSET);
         assert(msg_amount() > 0);
         assert(storage.request_id.read().is_none());
+        let liquidity_pool = abi(LiquidityPool, LIQUIDITY_POOL.into());
+        let res = liquidity_pool.request_collateral(msg_amount() * 3);
+        match res {
+            Ok(_) => {},
+            Err(err) => return Err(err),
+        };
         storage
             .bets
             .push((msg_sender().unwrap(), outcome, msg_amount()));
-        let liquidity_pool = abi(LiquidityPool, LIQUIDITY_POOL.into());
-        liquidity_pool.request_collateral(msg_amount() * 3);
+        Ok(())
     }
 
     #[storage(write, read)]
@@ -173,12 +178,16 @@ impl Game for Contract {
             log(GameError::NotEnoughFundsDraw((amount, cost)));
             revert(3);
         }
-        let id = vrf.request(seed);
+        let id = vrf.request {
+            gas: 1_000_000,
+            asset_id: AssetId::base().bits(),
+            coins: cost,
+        }(seed);
         storage.request_id.write(Some(id));
     }
 
     #[storage(write, read)]
-    fn fulfill_random() {
+    fn fulfill_random() -> Result<(), LiquidityPoolError> {
         require(
             storage
                 .request_id
@@ -191,10 +200,11 @@ impl Game for Contract {
         let randomness = abi(Vrf, VRF_ADDR).get_request_by_num(id).unwrap().state;
         let random_number = match randomness {
             RandomnessState::Fulfilled(fulfilled) => fulfilled.randomness,
-            _ => revert(4),
+            _ => revert(5),
         };
 
-        let test_value: u8 = random_number.bits()[0].to_be_bytes()[0];
+        let test_value: u8 = random_number.bits()[0].to_be_bytes()[0] % 4;
+        log(test_value);
         let outcome = match test_value {
             0 => Outcome::BLUE,
             1 => Outcome::GREEN,
@@ -213,12 +223,19 @@ impl Game for Contract {
             }
             i += 1;
         }
-        transfer(
-            Identity::ContractId(LIQUIDITY_POOL),
-            BASE_ASSET,
-            money_left,
-        );
+        let liquidity_pool = abi(LiquidityPool, LIQUIDITY_POOL.into());
+        let res = liquidity_pool.send_remaining_collateral {
+            gas: 10_000_000,
+            asset_id: BASE_ASSET.bits(),
+            coins: money_left,
+        }();
+        match res {
+            Ok(_) => {},
+            Err(err) => {log(err); return  Err(err);},
+        };
+        storage.bets.clear();
         storage.request_id.write(None);
+        Ok(())
     }
 
     #[storage(read)]

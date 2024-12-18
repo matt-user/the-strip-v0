@@ -1,6 +1,6 @@
 library;
 
-enum LiquidityPoolError {
+pub enum LiquidityPoolError {
     /// Emitted when a vault has already started.
     VaultAlreadyStarted: (),
     /// Emitted if a round can not be closed.

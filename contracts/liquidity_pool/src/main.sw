@@ -26,7 +26,7 @@ use sway_libs::{
 use standards::src5::{SRC5, State};
 
 // 7 Days * 24 hrs * 60 min * 60 secs
-const ROUND_LENGTH_SECS = 604800;
+const ROUND_LENGTH_SECS = 2;
 
 configurable {
     DEPOSIT_ASSET_ID: AssetId = AssetId::zero(),
@@ -470,11 +470,6 @@ impl LiquidityPool for Contract {
     fn send_remaining_collateral() -> Result<(), LiquidityPoolError>{
         require_not_paused();
 
-        let sender = msg_sender().unwrap();
-        if sender != Identity::ContractId(storage.game_contract_id.read()) {
-            return Err(LiquidityPoolError::CannotDepositCollateral);
-        }
-
         let asset_id = msg_asset_id();
 
         if asset_id != DEPOSIT_ASSET_ID {
@@ -482,10 +477,6 @@ impl LiquidityPool for Contract {
         }
 
         let amount = msg_amount();
-
-        if amount == 0 {
-            return Err(LiquidityPoolError::DepositedAmountGt0);
-        }
 
         let available_collateral = storage.available_collateral.read();
         storage

@@ -6,7 +6,7 @@ import Button from "./Button";
 import { gameContractAddress } from "../../../lib";
 import { useNotification } from "../hooks/useNotification";
 import { usdsAssetId } from "../utils/assetId";
-import { Account, BN } from "fuels";
+import { Account, BN, getRandomB256 } from "fuels";
 
 type Bet = {
   user: string;
@@ -64,7 +64,40 @@ export default function GameContract() {
 
     try {
       const { waitForResult } = await game.functions.place_bet(betOutcome).callParams({forward: [betAmount * 10** 9, usdsAssetId]}).call();
+      const res = await waitForResult();
+      if (res.value.Err) {
+        throw new Error(res.value.Err);
+      }
+    } catch (error) {
+      console.error(error);
+      errorNotification("Error adding liquidity counter");
+    }
+    setIsLoading(false);
+  }
+
+  async function requestRandom() {
+    if (!wallet || !game) return;
+    setIsLoading(true);
+
+    try {
+      const { waitForResult } = await game.functions.request_random(getRandomB256()).callParams({forward: [10000, wallet.provider.getBaseAssetId()]}).call();
       await waitForResult();
+    } catch (error) {
+      console.error(error);
+    }
+    setIsLoading(false);
+  }
+
+  async function processOutcomes() {
+    if (!wallet || !game) return;
+    setIsLoading(true);
+
+    try {
+      const { waitForResult } = await game.functions.fulfill_random().call();
+      const res = await waitForResult();
+      if (res.value.Err) {
+        throw new Error(res.value.Err);
+      }
     } catch (error) {
       console.error(error);
       errorNotification("Error adding liquidity counter");
@@ -116,6 +149,14 @@ export default function GameContract() {
             Place Bet
           </Button>
         </div>
+      </div>
+      <div>
+        <Button onClick={() => requestRandom()} disabled={isLoading}>
+          Request Random
+        </Button>
+        <Button onClick={() => processOutcomes()} disabled={isLoading}>
+          Process Outcomes
+        </Button>
       </div>
       <div></div>
     </>

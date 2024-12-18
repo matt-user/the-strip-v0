@@ -20,7 +20,7 @@ import type {
   InvokeFunction,
 } from 'fuels';
 
-import type { Enum, Vec, Result } from "./common";
+import type { Enum, Vec } from "./common";
 
 export enum AccessErrorInput { NotOwner = 'NotOwner' };
 export enum AccessErrorOutput { NotOwner = 'NotOwner' };
@@ -30,8 +30,6 @@ export type IdentityInput = Enum<{ Address: AddressInput, ContractId: ContractId
 export type IdentityOutput = Enum<{ Address: AddressOutput, ContractId: ContractIdOutput }>;
 export enum InitializationErrorInput { CannotReinitialized = 'CannotReinitialized' };
 export enum InitializationErrorOutput { CannotReinitialized = 'CannotReinitialized' };
-export enum LiquidityPoolErrorInput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound', WrongDepositedAsset = 'WrongDepositedAsset', VaultNotStarted = 'VaultNotStarted', NoCollateralInVault = 'NoCollateralInVault', MustSignalWithdrawalAfterRoundCompletion = 'MustSignalWithdrawalAfterRoundCompletion', WithdrawalMustBeLarger = 'WithdrawalMustBeLarger', WithdrawalMustBeSmaller = 'WithdrawalMustBeSmaller', MustWithdrawAfterRoundCompletion = 'MustWithdrawAfterRoundCompletion', NoFundsToWithdraw = 'NoFundsToWithdraw', CannotRequestCollateral = 'CannotRequestCollateral', MustRequestCollateralLessThanTotal = 'MustRequestCollateralLessThanTotal', CannotDepositCollateral = 'CannotDepositCollateral', DepositedAmountGt0 = 'DepositedAmountGt0' };
-export enum LiquidityPoolErrorOutput { VaultAlreadyStarted = 'VaultAlreadyStarted', CannotCloseCurrentRound = 'CannotCloseCurrentRound', WrongDepositedAsset = 'WrongDepositedAsset', VaultNotStarted = 'VaultNotStarted', NoCollateralInVault = 'NoCollateralInVault', MustSignalWithdrawalAfterRoundCompletion = 'MustSignalWithdrawalAfterRoundCompletion', WithdrawalMustBeLarger = 'WithdrawalMustBeLarger', WithdrawalMustBeSmaller = 'WithdrawalMustBeSmaller', MustWithdrawAfterRoundCompletion = 'MustWithdrawAfterRoundCompletion', NoFundsToWithdraw = 'NoFundsToWithdraw', CannotRequestCollateral = 'CannotRequestCollateral', MustRequestCollateralLessThanTotal = 'MustRequestCollateralLessThanTotal', CannotDepositCollateral = 'CannotDepositCollateral', DepositedAmountGt0 = 'DepositedAmountGt0' };
 export enum OutcomeInput { BLUE = 'BLUE', GREEN = 'GREEN', YELLOW = 'YELLOW', RED = 'RED' };
 export enum OutcomeOutput { BLUE = 'BLUE', GREEN = 'GREEN', YELLOW = 'YELLOW', RED = 'RED' };
 export enum PauseErrorInput { Paused = 'Paused', NotPaused = 'NotPaused' };
@@ -87,58 +85,44 @@ const abi = {
       "metadataTypeId": 3
     },
     {
-      "type": "enum liquidity_pool_abi::LiquidityPoolError",
-      "concreteTypeId": "9c632f24dd550d0d95c9d4c0bb5a5b7cec8d24f9b5353c549e123b552a636e8f",
-      "metadataTypeId": 4
-    },
-    {
       "type": "enum standards::src5::AccessError",
       "concreteTypeId": "3f702ea3351c9c1ece2b84048006c8034a24cbc2bad2e740d0412b4172951d3d",
-      "metadataTypeId": 5
+      "metadataTypeId": 4
     },
     {
       "type": "enum standards::src5::State",
       "concreteTypeId": "192bc7098e2fe60635a9918afb563e4e5419d386da2bdbf0d716b4bc8549802c",
-      "metadataTypeId": 6
+      "metadataTypeId": 5
     },
     {
       "type": "enum std::identity::Identity",
       "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335",
-      "metadataTypeId": 7
-    },
-    {
-      "type": "enum std::result::Result<(),enum liquidity_pool_abi::LiquidityPoolError>",
-      "concreteTypeId": "62c98b6959a49888acb319a34de58cc581918c47e31e3fe1d933f1aefb718188",
-      "metadataTypeId": 8,
-      "typeArguments": [
-        "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
-        "9c632f24dd550d0d95c9d4c0bb5a5b7cec8d24f9b5353c549e123b552a636e8f"
-      ]
+      "metadataTypeId": 6
     },
     {
       "type": "enum sway_libs::ownership::errors::InitializationError",
       "concreteTypeId": "1dfe7feadc1d9667a4351761230f948744068a090fe91b1bc6763a90ed5d3893",
-      "metadataTypeId": 9
+      "metadataTypeId": 7
     },
     {
       "type": "enum sway_libs::pausable::errors::PauseError",
       "concreteTypeId": "8b3afcadf894415a10b09fc3717487e33802c8ffbb030edafe84ca4a71b280bc",
-      "metadataTypeId": 10
+      "metadataTypeId": 8
     },
     {
       "type": "struct std::asset_id::AssetId",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "metadataTypeId": 15
+      "metadataTypeId": 12
     },
     {
       "type": "struct std::contract_id::ContractId",
       "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
-      "metadataTypeId": 16
+      "metadataTypeId": 13
     },
     {
       "type": "struct std::vec::Vec<(enum std::identity::Identity, enum Outcome, u64)>",
       "concreteTypeId": "1fef95959f24aaa8108666ecb32691fed31e7300c6b9f2ef1c4427da48b9761f",
-      "metadataTypeId": 18,
+      "metadataTypeId": 15,
       "typeArguments": [
         "22365060ee120a80dee59e3cd87d14f2407c05cb88b1a4975a8f015d8a8d7070"
       ]
@@ -146,15 +130,11 @@ const abi = {
     {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
       "concreteTypeId": "e1ef35033ea9d2956f17c3292dea4a46ce7d61fdf37bbebe03b7b965073f43b5",
-      "metadataTypeId": 19
+      "metadataTypeId": 16
     },
     {
       "type": "u32",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc"
-    },
-    {
-      "type": "u8",
-      "concreteTypeId": "c89951a24c6ca28c13fd1cfdc646b2b656d69e61a92b91023be7eb58eb914b6b"
     }
   ],
   "metadataTypes": [
@@ -164,11 +144,11 @@ const abi = {
       "components": [
         {
           "name": "__tuple_element",
-          "typeId": 20
+          "typeId": 17
         },
         {
           "name": "__tuple_element",
-          "typeId": 20
+          "typeId": 17
         }
       ]
     },
@@ -178,7 +158,7 @@ const abi = {
       "components": [
         {
           "name": "__tuple_element",
-          "typeId": 7
+          "typeId": 6
         },
         {
           "name": "__tuple_element",
@@ -186,7 +166,7 @@ const abi = {
         },
         {
           "name": "__tuple_element",
-          "typeId": 20
+          "typeId": 17
         }
       ]
     },
@@ -235,70 +215,8 @@ const abi = {
       ]
     },
     {
-      "type": "enum liquidity_pool_abi::LiquidityPoolError",
-      "metadataTypeId": 4,
-      "components": [
-        {
-          "name": "VaultAlreadyStarted",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "CannotCloseCurrentRound",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "WrongDepositedAsset",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "VaultNotStarted",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "NoCollateralInVault",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "MustSignalWithdrawalAfterRoundCompletion",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "WithdrawalMustBeLarger",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "WithdrawalMustBeSmaller",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "MustWithdrawAfterRoundCompletion",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "NoFundsToWithdraw",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "CannotRequestCollateral",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "MustRequestCollateralLessThanTotal",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "CannotDepositCollateral",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        },
-        {
-          "name": "DepositedAmountGt0",
-          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
-        }
-      ]
-    },
-    {
       "type": "enum standards::src5::AccessError",
-      "metadataTypeId": 5,
+      "metadataTypeId": 4,
       "components": [
         {
           "name": "NotOwner",
@@ -308,7 +226,7 @@ const abi = {
     },
     {
       "type": "enum standards::src5::State",
-      "metadataTypeId": 6,
+      "metadataTypeId": 5,
       "components": [
         {
           "name": "Uninitialized",
@@ -316,7 +234,7 @@ const abi = {
         },
         {
           "name": "Initialized",
-          "typeId": 7
+          "typeId": 6
         },
         {
           "name": "Revoked",
@@ -326,39 +244,21 @@ const abi = {
     },
     {
       "type": "enum std::identity::Identity",
-      "metadataTypeId": 7,
+      "metadataTypeId": 6,
       "components": [
         {
           "name": "Address",
-          "typeId": 14
+          "typeId": 11
         },
         {
           "name": "ContractId",
-          "typeId": 16
+          "typeId": 13
         }
-      ]
-    },
-    {
-      "type": "enum std::result::Result",
-      "metadataTypeId": 8,
-      "components": [
-        {
-          "name": "Ok",
-          "typeId": 12
-        },
-        {
-          "name": "Err",
-          "typeId": 11
-        }
-      ],
-      "typeParameters": [
-        12,
-        11
       ]
     },
     {
       "type": "enum sway_libs::ownership::errors::InitializationError",
-      "metadataTypeId": 9,
+      "metadataTypeId": 7,
       "components": [
         {
           "name": "CannotReinitialized",
@@ -368,7 +268,7 @@ const abi = {
     },
     {
       "type": "enum sway_libs::pausable::errors::PauseError",
-      "metadataTypeId": 10,
+      "metadataTypeId": 8,
       "components": [
         {
           "name": "Paused",
@@ -381,20 +281,16 @@ const abi = {
       ]
     },
     {
-      "type": "generic E",
-      "metadataTypeId": 11
-    },
-    {
       "type": "generic T",
-      "metadataTypeId": 12
+      "metadataTypeId": 9
     },
     {
       "type": "raw untyped ptr",
-      "metadataTypeId": 13
+      "metadataTypeId": 10
     },
     {
       "type": "struct std::address::Address",
-      "metadataTypeId": 14,
+      "metadataTypeId": 11,
       "components": [
         {
           "name": "bits",
@@ -404,7 +300,7 @@ const abi = {
     },
     {
       "type": "struct std::asset_id::AssetId",
-      "metadataTypeId": 15,
+      "metadataTypeId": 12,
       "components": [
         {
           "name": "bits",
@@ -414,7 +310,7 @@ const abi = {
     },
     {
       "type": "struct std::contract_id::ContractId",
-      "metadataTypeId": 16,
+      "metadataTypeId": 13,
       "components": [
         {
           "name": "bits",
@@ -424,57 +320,57 @@ const abi = {
     },
     {
       "type": "struct std::vec::RawVec",
-      "metadataTypeId": 17,
+      "metadataTypeId": 14,
       "components": [
         {
           "name": "ptr",
-          "typeId": 13
+          "typeId": 10
         },
         {
           "name": "cap",
-          "typeId": 20
+          "typeId": 17
         }
       ],
       "typeParameters": [
-        12
+        9
       ]
     },
     {
       "type": "struct std::vec::Vec",
-      "metadataTypeId": 18,
+      "metadataTypeId": 15,
       "components": [
         {
           "name": "buf",
-          "typeId": 17,
+          "typeId": 14,
           "typeArguments": [
             {
               "name": "",
-              "typeId": 12
+              "typeId": 9
             }
           ]
         },
         {
           "name": "len",
-          "typeId": 20
+          "typeId": 17
         }
       ],
       "typeParameters": [
-        12
+        9
       ]
     },
     {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
-      "metadataTypeId": 19,
+      "metadataTypeId": 16,
       "components": [
         {
           "name": "new_owner",
-          "typeId": 7
+          "typeId": 6
         }
       ]
     },
     {
       "type": "u64",
-      "metadataTypeId": 20
+      "metadataTypeId": 17
     }
   ],
   "functions": [
@@ -533,7 +429,7 @@ const abi = {
     {
       "inputs": [],
       "name": "fulfill_random",
-      "output": "62c98b6959a49888acb319a34de58cc581918c47e31e3fe1d933f1aefb718188",
+      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
         {
           "name": "storage",
@@ -661,7 +557,7 @@ const abi = {
         }
       ],
       "name": "place_bet",
-      "output": "62c98b6959a49888acb319a34de58cc581918c47e31e3fe1d933f1aefb718188",
+      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
       "attributes": [
         {
           "name": "storage",
@@ -710,14 +606,6 @@ const abi = {
       "concreteTypeId": "5826d4a858851fed1f0bdf9fec8c6ef8cde309190274786923e4ebc123bb37fc"
     },
     {
-      "logId": "14454674236531057292",
-      "concreteTypeId": "c89951a24c6ca28c13fd1cfdc646b2b656d69e61a92b91023be7eb58eb914b6b"
-    },
-    {
-      "logId": "11268902527989779725",
-      "concreteTypeId": "9c632f24dd550d0d95c9d4c0bb5a5b7cec8d24f9b5353c549e123b552a636e8f"
-    },
-    {
       "logId": "2161305517876418151",
       "concreteTypeId": "1dfe7feadc1d9667a4351761230f948744068a090fe91b1bc6763a90ed5d3893"
     },
@@ -735,17 +623,17 @@ const abi = {
     {
       "name": "LIQUIDITY_POOL",
       "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
-      "offset": 51280
+      "offset": 44480
     },
     {
       "name": "BASE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 51248
+      "offset": 44448
     },
     {
       "name": "MATURITY",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 51312
+      "offset": 44512
     }
   ]
 };
@@ -789,10 +677,10 @@ export class Game extends Contract {
     is_paused: InvokeFunction<[], boolean>;
     pause: InvokeFunction<[], void>;
     unpause: InvokeFunction<[], void>;
-    fulfill_random: InvokeFunction<[], Result<void, LiquidityPoolErrorOutput>>;
+    fulfill_random: InvokeFunction<[], void>;
     get_all_bets: InvokeFunction<[], Vec<[IdentityOutput, OutcomeOutput, BN]>>;
     initialize: InvokeFunction<[new_owner: IdentityInput], void>;
-    place_bet: InvokeFunction<[outcome: OutcomeInput], Result<void, LiquidityPoolErrorOutput>>;
+    place_bet: InvokeFunction<[outcome: OutcomeInput], void>;
     request_random: InvokeFunction<[seed: string], void>;
   };
 

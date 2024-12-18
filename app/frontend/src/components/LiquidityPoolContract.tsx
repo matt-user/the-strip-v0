@@ -14,6 +14,7 @@ export default function LiquidityPoolContract() {
   const { errorNotification } = useNotification();
   const [liquidityPool, setLiquidityPool] = useState<LiquidityPool>();
   const [totalDeposits, setTotalDeposits] = useState<number>(0);
+  const [totalCollateral, setTotalCollateral] = useState<number>(0);
   const [liquidityToAdd, setLiquidityToAdd] = useState<number>();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,8 +27,16 @@ export default function LiquidityPoolContract() {
           setTotalDeposits(res.value.toNumber());
           setLiquidityPool(liquidityPool);
     }
+
+    const updateCollateral = async (wallet: Account) => {
+      const liquidityPool = new LiquidityPool(liquidityPoolContractAddress, wallet);
+      const res = await liquidityPool.functions.available_collateral().dryRun();
+      setTotalCollateral(res.value.toNumber());
+      setLiquidityPool(liquidityPool);
+    }
     if (wallet) {
        updateDeposits(wallet);
+       updateCollateral(wallet);
     }
   }, [wallet]);
 
@@ -49,6 +58,7 @@ export default function LiquidityPoolContract() {
     <>
       <div>
         <h3 className="mb-1 text-sm font-bold text-white">Current Liquidity is {(totalDeposits / (10 ** 9)).toFixed(3)} USDS</h3>
+        <h3 className="mb-1 text-sm font-bold text-white">Current Collateral available is {(totalCollateral / (10 ** 9)).toFixed(3)} USDS</h3>
         <div className="flex items-center justify-between text-base">
           <input
             type="text"
