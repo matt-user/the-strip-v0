@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use fuels::{prelude::*, types::Identity};
 
 use crate::liquidity_pool::get_contract_instance;
@@ -52,6 +54,13 @@ async fn can_not_deposit_wrong_asset() {
     let _ = instance
         .methods()
         .initialize(Some(new_owner))
+        .call_params(CallParameters::new(
+            100,
+            AssetId::from_str("0x656A68f0d8Fb82505BCD2bE28F6B7600cf427D828f3E3F9AAcdEf03a12D8f16C")
+                .unwrap(),
+            100_000,
+        ))
+        .unwrap()
         .call()
         .await
         .unwrap();
