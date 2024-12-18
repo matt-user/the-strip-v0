@@ -156,7 +156,7 @@ abi LiquidityPool {
     fn total_deposits() -> u64;
 
     #[storage(read, write)]
-    fn request_collateral(amount: u64);
+    fn request_collateral(amount: u64) -> Result<(), LiquidityPoolError>;
 
     #[storage(read, write)]
     fn signal_withdrawal(amount: u64);
@@ -165,7 +165,7 @@ abi LiquidityPool {
     fn withdrawal();
 
     #[storage(read, write)]
-    fn send_remaining_collateral();
+    fn send_remaining_collateral() -> Result<(), LiquidityPoolError>;
 
     #[storage(read)]
     fn available_collateral() -> u64;
@@ -413,23 +413,27 @@ impl LiquidityPool for Contract {
     }
 
     #[storage(read, write)]
-    fn request_collateral(amount: u64) {
+    fn request_collateral(amount: u64) -> Result<(), LiquidityPoolError> {
         require_not_paused();
         let sender = msg_sender().unwrap();
-        require(
-            sender == Identity::ContractId(storage.game_contract_id.read()),
-            LiquidityPoolError::CannotRequestCollateral,
-        );
+
+        if sender != Identity::ContractId(storage.game_contract_id.read()) {
+            return Err(LiquidityPoolError::CannotRequestCollateral);
+        }
+
         let available_collateral = storage.available_collateral.read();
-        require(
-            amount < available_collateral,
-            LiquidityPoolError::MustRequestCollateralLessThanTotal,
-        );
+
+        if amount > available_collateral {
+            return Err(LiquidityPoolError::MustRequestCollateralLessThanTotal);
+        }
+
         storage
             .available_collateral
             .write(available_collateral - amount);
         transfer(sender, DEPOSIT_ASSET_ID, amount);
         // UB: sum of user's collaterals != available_collateral
+
+        Ok(())
     }
 
     /// User initiates withdrawal of their signalled withdrawal amount
@@ -463,28 +467,32 @@ impl LiquidityPool for Contract {
 
     // Game Contract Sends unsused collateral.
     #[storage(read, write)]
-    fn send_remaining_collateral() {
+    fn send_remaining_collateral() -> Result<(), LiquidityPoolError>{
         require_not_paused();
 
         let sender = msg_sender().unwrap();
-        require(
-            sender == Identity::ContractId(storage.game_contract_id.read()),
-            LiquidityPoolError::CannotDepositCollateral,
-        );
+        if sender != Identity::ContractId(storage.game_contract_id.read()) {
+            return Err(LiquidityPoolError::CannotDepositCollateral);
+        }
 
         let asset_id = msg_asset_id();
-        require(
-            asset_id == DEPOSIT_ASSET_ID,
-            LiquidityPoolError::WrongDepositedAsset,
-        );
+
+        if asset_id != DEPOSIT_ASSET_ID {
+            return Err(LiquidityPoolError::WrongDepositedAsset);
+        }
 
         let amount = msg_amount();
-        require(amount > 0, LiquidityPoolError::DepositedAmountGt0);
+
+        if amount == 0 {
+            return Err(LiquidityPoolError::DepositedAmountGt0);
+        }
 
         let available_collateral = storage.available_collateral.read();
         storage
             .available_collateral
             .write(available_collateral + amount);
+
+        Ok(())
     }
 
     /// Get total collateral of liquidity pool

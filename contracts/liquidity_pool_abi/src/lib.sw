@@ -1,5 +1,36 @@
 library;
 
+enum LiquidityPoolError {
+    /// Emitted when a vault has already started.
+    VaultAlreadyStarted: (),
+    /// Emitted if a round can not be closed.
+    CannotCloseCurrentRound: (),
+    /// Emitted if the deposited asset is not DEPOSITED_ASSET_ID
+    WrongDepositedAsset: (),
+    /// Emitted when a vault should be started before signaling withdrawal
+    VaultNotStarted: (),
+    /// Emitted when a user signaling a withdrawal has no collateral
+    NoCollateralInVault: (),
+    /// Emitted when a user signals a withdrawal during the current round
+    MustSignalWithdrawalAfterRoundCompletion: (),
+    /// Emitted when a user signals a withdrawal < 10% of their collateral
+    WithdrawalMustBeLarger: (),
+    /// Emitted when a user signals a withdrawal > their collateral
+    WithdrawalMustBeSmaller: (),
+    /// Emitted when a user tries to withdraw before completion of current round
+    MustWithdrawAfterRoundCompletion: (),
+    /// Emitted when a user that has no funds available to withdraw tries to withdraw
+    NoFundsToWithdraw: (),
+    /// Emitted when invalid contract/eoa calls the request_collateral function
+    CannotRequestCollateral: (),
+    /// Emitted when the game contract calls request_collateral with an amount > available_collateral
+    MustRequestCollateralLessThanTotal: (),
+    /// Emitted when an unauthorized contract/eoa tries to deposit unused collateral
+    CannotDepositCollateral: (),
+    /// Emitted when the deposited collateral is 0
+    DepositedAmountGt0: (),
+}
+
 /// Logged when a new round is started
 struct RoundStarted {
     /// The new round starting
@@ -51,7 +82,7 @@ abi LiquidityPool {
     fn total_deposits() -> u64;
 
     #[storage(read, write)]
-    fn request_collateral(amount: u64);
+    fn request_collateral(amount: u64) -> Result<(), LiquidityPoolError>;
 
     #[storage(read, write)]
     fn signal_withdrawal(amount: u64);
@@ -60,7 +91,7 @@ abi LiquidityPool {
     fn withdrawal();
 
     #[storage(read, write)]
-    fn send_remaining_collateral();
+    fn send_remaining_collateral() -> Result<(), LiquidityPoolError>;
 
     #[storage(read)]
     fn available_collateral() -> u64;
