@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useWallet } from "@fuels/react";
 
 import LocalFaucet from "./LocalFaucet";
-import { LiquidityPool } from "../../../scripts/types/contracts/LiquidityPool";
+import { LiquidityPool } from "../types/liquidity_pool/LiquidityPool";
 import Button from "./Button";
 import { isLocal, localUSDSContractAddress } from "../../../lib";
 import { useNotification } from "../hooks/useNotification";

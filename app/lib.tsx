@@ -2,7 +2,7 @@ import { BN } from "fuels";
 import contractIds from "./scripts/contract-ids.json";
 
 export const environments = { LOCAL: "local", TESTNET: "testnet" };
-export const environment = process.env.NEXT_DAPP_ENVIRONMENT || environments.LOCAL;
+export const environment = process.env.NEXT_PUBLIC_DAPP_ENVIRONMENT || environments.LOCAL;
 export const isLocal = environment === environments.LOCAL;
 export const isTestnet = environment === environments.TESTNET;
 
