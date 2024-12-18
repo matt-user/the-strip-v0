@@ -9,11 +9,13 @@ const provider = await Provider.create(
   );
 
 const wallet = Wallet.fromPrivateKey(process.env.PRIVATE_KEY!, provider);
+const assetId = getMintedAssetId(process.env.USDS_CONTRACT_ADDRESS!, "0x0000000000000000000000000000000000000000000000000000000000000000");
+const assetIdInput = { bits: assetId }
 const configurable_consts = {
-  DEPOSIT_ASSET_ID: getMintedAssetId(process.env.USDS_CONTRACT_ADDRESS!, "0x0000000000000000000000000000000000000000000000000000000000000000")
+  DEPOSIT_ASSET_ID: assetIdInput
 }
 
-const deploy = await LiquidityPoolFactory.deploy(wallet, configurable_consts);
+const deploy = await LiquidityPoolFactory.deploy(wallet, {configurableConstants: configurable_consts});
 const { contract } = await deploy.waitForResult();
 
 const addressInput = { bits: wallet.address.toB256() };
@@ -28,3 +30,7 @@ const { waitForResult: waitForResult2 } = await contract.functions.start_vault()
 await waitForResult2();
 
 console.log(`Liquidity contract deployed at ${contract.id}`);
+
+// const {waitForResult: waitForResult3} = await contract.functions.deposit().callParams({forward: [10, assetId]}).call();
+
+// const { value } = await waitForResult3();

@@ -1270,7 +1270,7 @@ const abi = {
     {
       "name": "DEPOSIT_ASSET_ID",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 41200
+      "offset": 41816
     }
   ]
 };

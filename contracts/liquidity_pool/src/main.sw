@@ -224,6 +224,7 @@ impl LiquidityPool for Contract {
             i += 1;
         }
         storage.total_collateral.write(total_collateral);
+        storage.total_deposits.write(total_deposits);
 
         // TODO: emit event info about collateral and deposits
         log(RoundStarted {
@@ -297,6 +298,7 @@ impl LiquidityPool for Contract {
 
             i += 1;
         }
+        storage.total_deposits.write(total_deposits);
         storage.total_collateral.write(total_collateral);
     }
 
@@ -334,8 +336,7 @@ impl LiquidityPool for Contract {
         let new_deposit = current_deposit + amount;
         storage.deposits.insert(sender, new_deposit);
 
-        let mut total_deposits = storage.total_deposits.read();
-        total_deposits += amount;
+        storage.total_deposits.write(storage.total_deposits.read() + amount);
 
         let has_deposited = storage.has_deposited.get(sender).try_read().unwrap_or(false);
         if (!has_deposited) {
