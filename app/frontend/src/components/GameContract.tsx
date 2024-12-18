@@ -29,10 +29,26 @@ export default function GameContract() {
           const game = new Game(gameContractAddress, wallet);
           const res = await game.functions.get_all_bets().dryRun();
           setBets(res.value.map((value: [IdentityOutput, OutcomeOutput, BN]) => {
+            const [user, outcome, amount] = value;
+            let outcomeInput: OutcomeInput;
+            switch (outcome) {
+              case OutcomeOutput.BLUE:
+                outcomeInput = OutcomeInput.BLUE;
+                break;
+              case OutcomeOutput.GREEN:
+                outcomeInput = OutcomeInput.GREEN;
+                break;
+              case OutcomeOutput.YELLOW:
+                outcomeInput = OutcomeInput.YELLOW;
+                break;
+              case OutcomeOutput.RED:
+                outcomeInput = OutcomeInput.RED;
+                break;
+            };
             return {
-              amount: 0
-              user: "0"
-              outcome: OutcomeInput.BLUE
+              user: user.Address!.bits,
+              outcome: outcomeInput,
+              amount: amount
             };
           }));
           setGame(game);
@@ -63,7 +79,7 @@ export default function GameContract() {
         {bets.map((bet) => (
           <div key={bet.user}>
             <span>{bet.user}</span>
-            <span>{bet.amount}</span>
+            <span>{(bet.amount.toNumber() / (10 ** 9)).toFixed(3)}</span>
             <span>{bet.outcome}</span>
             </div>
         ))}
