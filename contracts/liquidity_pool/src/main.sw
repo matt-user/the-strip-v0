@@ -1,13 +1,13 @@
 contract;
 
 use std::{
+    asset::transfer,
     block::timestamp,
     call_frames::msg_asset_id,
     context::msg_amount,
     hash::Hash,
     storage::storage_vec::*,
     vec::*,
-    asset::transfer,
 };
 use sway_libs::{
     ownership::{
@@ -39,6 +39,7 @@ storage {
     round_start_time: StorageMap<u64, u64> = StorageMap::<u64, u64> {},
     trading_markets_per_round: StorageMap<u64, StorageVec<ContractId>> = StorageMap::<u64, StorageVec<ContractId>> {},
     deposits: StorageMap<Identity, u64> = StorageMap {},
+    has_deposited: StorageMap<Identity, bool> = StorageMap {},
     deposit_keys: StorageVec<Identity> = StorageVec {},
     collateral: StorageMap<Identity, u64> = StorageMap {},
     withdraws: StorageMap<Identity, u64> = StorageMap {},
@@ -145,8 +146,8 @@ abi LiquidityPool {
     #[storage(read, write)]
     fn withdrawal();
 
-   #[storage(read, write)]
-   fn send_remaining_collateral();
+    #[storage(read, write)]
+    fn send_remaining_collateral();
 }
 
 impl LiquidityPool for Contract {
@@ -260,7 +261,7 @@ impl LiquidityPool for Contract {
 
             // Move deposits to collateral
             let deposit = storage.deposits.get(user).read();
-            let user_collateral = storage.collateral.get(user).read(); 
+            let user_collateral = storage.collateral.get(user).read();
             storage.collateral.insert(user, deposit + user_collateral);
             storage.deposits.insert(user, 0);
 
@@ -269,8 +270,13 @@ impl LiquidityPool for Contract {
             // Move signalled withdraws to withdraws
             let signaled_withdraw = storage.signaled_withdraws.get(user).read();
             let user_withdraws = storage.withdraws.get(user).read();
-            storage.withdraws.insert(user, signaled_withdraw + user_withdraws);
+            storage
+                .withdraws
+                .insert(user, signaled_withdraw + user_withdraws);
             storage.signal_withdraws.insert(user, 0);
+
+            // TODO: do we have to worry about underflows?
+            total_collateral -= signaled_withdraw;
 
             i += 1;
         }
@@ -310,8 +316,10 @@ impl LiquidityPool for Contract {
         let current_deposit = storage.deposits.get(sender).read();
         let new_deposit = current_deposit + amount;
         storage.deposits.insert(sender, new_deposit);
-        // TODO: we need to check if sender already exists in deposit_keys.
-        storage.deposit_keys.push(sender);
+        let has_deposited = storage.has_deposited.get(sender).read();
+        if (!has_deposited) {
+            storage.deposit_keys.push(sender);
+        }
 
         log(Deposit {
             amount: new_deposit,
@@ -416,11 +424,9 @@ impl LiquidityPool for Contract {
         // TODO: emit event for withdrawals
     }
 
-   // Game Contract Sends unsused collateral.
-   #[storage(read, write)]
-   fn send_remaining_collateral() {
-
-   }
+    // Game Contract Sends unsused collateral.
+    #[storage(read, write)]
+    fn send_remaining_collateral() {}
 }
 
 /// Checks if all conditions are met to close the round
