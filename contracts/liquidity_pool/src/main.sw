@@ -360,15 +360,6 @@ impl LiquidityPool for Contract {
 
         let round = storage.current_round.read();
 
-        // @rymnc user's can signal withdrawal at any time
-        // require(
-        //     timestamp() > (storage
-        //             .round_start_time
-        //             .get(round)
-        //             .read() + ROUND_LENGTH_SECS),
-        //     LiquidityPoolError::MustSignalWithdrawalAfterRoundCompletion,
-        // );
-
         let sender = msg_sender().unwrap();
 
         let collateral = storage.collateral.get(sender).read();
@@ -412,16 +403,6 @@ impl LiquidityPool for Contract {
         require(vault_started, LiquidityPoolError::VaultNotStarted);
 
         let round = storage.current_round.read();
-
-        // @rymnc users can withdraw funds at any time.  Funds signaled for withdrawal will be transferred to `withdraws` after `close_round` is called
-        // require(
-        //     timestamp() > (storage
-        //             .round_start_time
-        //             .get(round)
-        //             .read() + ROUND_LENGTH_SECS),
-        //     LiquidityPoolError::MustWithdrawAfterRoundCompletion,
-        // );
-
         let sender = msg_sender().unwrap();
         let withdrawal_amount = storage.withdraws.get(sender).read();
 
