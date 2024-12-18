@@ -8,6 +8,7 @@ mod pause;
 mod start_vault;
 mod deposit;
 mod can_close_round;
+mod close_round;
 
 // Load abi from json
 abigen!(Contract(

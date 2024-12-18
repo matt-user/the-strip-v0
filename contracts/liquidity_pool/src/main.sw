@@ -43,7 +43,7 @@ storage {
     deposit_keys: StorageVec<Identity> = StorageVec {},
     collateral: StorageMap<Identity, u64> = StorageMap {},
     withdraws: StorageMap<Identity, u64> = StorageMap {},
-    signalled_withdraws: StorageMap<Identity, u64> = StorageMap {},
+    signaled_withdraws: StorageMap<Identity, u64> = StorageMap {},
     total_collateral: u64 = 0,
 }
 
@@ -148,6 +148,9 @@ abi LiquidityPool {
 
     #[storage(read, write)]
     fn send_remaining_collateral();
+
+    #[storage(read)]
+    fn total_collateral() -> u64;
 }
 
 impl LiquidityPool for Contract {
@@ -273,7 +276,7 @@ impl LiquidityPool for Contract {
             storage
                 .withdraws
                 .insert(user, signaled_withdraw + user_withdraws);
-            storage.signal_withdraws.insert(user, 0);
+            storage.signaled_withdraws.insert(user, 0);
 
             // TODO: do we have to worry about underflows?
             total_collateral -= signaled_withdraw;
@@ -313,10 +316,10 @@ impl LiquidityPool for Contract {
         // TODO: require min asset amount
         let sender = msg_sender().unwrap();
 
-        let current_deposit = storage.deposits.get(sender).read();
+        let current_deposit = storage.deposits.get(sender).try_read().unwrap_or(0);
         let new_deposit = current_deposit + amount;
         storage.deposits.insert(sender, new_deposit);
-        let has_deposited = storage.has_deposited.get(sender).read();
+        let has_deposited = storage.has_deposited.get(sender).try_read().unwrap_or(false);
         if (!has_deposited) {
             storage.deposit_keys.push(sender);
         }
@@ -376,9 +379,9 @@ impl LiquidityPool for Contract {
 
         storage.collateral.insert(sender, collateral - amount);
         // TODO: should we allow multiple withdrawals to be signaled?
-        let signalled_withdrawal = storage.signal_withdrawals.get(sender).read();
+        let signalled_withdrawal = storage.signaled_withdraws.get(sender).read();
         storage
-            .signal_withdrawals
+            .signaled_withdraws
             .insert(sender, signalled_withdrawal + amount);
     }
 
@@ -420,13 +423,27 @@ impl LiquidityPool for Contract {
         require(withdrawal_amount > 0, LiquidityPoolError::NoFundsToWithdraw);
         // TODO: maybe add a check here for contract balance and ensure it is > withdrawal_amount
         transfer(sender, DEPOSIT_ASSET_ID, withdrawal_amount);
-        storage.signal_withdrawals.insert(sender, 0);
+        storage.signaled_withdraws.insert(sender, 0);
         // TODO: emit event for withdrawals
     }
 
     // Game Contract Sends unsused collateral.
     #[storage(read, write)]
     fn send_remaining_collateral() {}
+
+    /// Get total collateral of liquidity pool
+    ///
+    /// # Returns
+    ///
+    /// * total_collatera: u64
+    ///
+    /// # Storage Accesses
+    ///
+    /// * Reads: `1`
+    #[storage(read)]
+    fn total_collateral() -> u64 {
+        storage.total_collateral.read()
+    }
 }
 
 /// Checks if all conditions are met to close the round
