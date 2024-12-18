@@ -4,8 +4,10 @@ import { useWallet } from "@fuels/react";
 import LocalFaucet from "./LocalFaucet";
 import { LiquidityPool } from "../types/liquidity_pool/LiquidityPool";
 import Button from "./Button";
-import { isLocal, localUSDSContractAddress } from "../../../lib";
+import { isLocal, liquidityPoolContractAddress } from "../../../lib";
 import { useNotification } from "../hooks/useNotification";
+import { usdsAssetId } from "../utils/assetId";
+
 
 export default function LiquidityPoolContract() {
   const { errorNotification } = useNotification();
@@ -17,7 +19,7 @@ export default function LiquidityPoolContract() {
 
   useEffect(() => {
     if (wallet) {
-      const liquidityPool = new LiquidityPool(localUSDSContractAddress, wallet);
+      const liquidityPool = new LiquidityPool(liquidityPoolContractAddress, wallet);
       setLiquidityPool(liquidityPool);
     }
   }, [wallet]);
@@ -33,7 +35,8 @@ export default function LiquidityPoolContract() {
     setIsLoading(true);
 
     try {
-      // Liquidity Pool Logic
+      const { waitForResult } = await liquidityPool.functions.deposit().callParams({forward: [10, usdsAssetId]}).call();
+      await waitForResult();
     } catch (error) {
       console.error(error);
       errorNotification("Error adding liquidity counter");
@@ -50,7 +53,6 @@ export default function LiquidityPoolContract() {
             type="text"
             value={liquidity}
             className="w-2/3 bg-gray-800 rounded-md px-2 py-1 mr-3 truncate font-mono"
-            disabled
             data-testid="liquidity"
           />
           <Button onClick={addLiquidity} className="w-1/3" disabled={isLoading}>

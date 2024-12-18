@@ -4,12 +4,13 @@ import { useEffect } from "react";
 import Button from "./Button";
 import LocalFaucet from "./LocalFaucet";
 import { isLocal, renderFormattedBalance } from "../../../lib";
+import { usdsAssetId } from "../utils/assetId";
 
 export default function Wallet() {
   const { disconnect } = useDisconnect();
   const { wallet } = useWallet();
   const address = wallet?.address.toB256() || "";
-  const { balance, refetch } = useBalance({ address });
+  const { balance, refetch } = useBalance({ address, assetId: usdsAssetId });
 
   useEffect(() => {
     refetch();
@@ -19,7 +20,7 @@ export default function Wallet() {
     const interval = setInterval(() => refetch(), 5000);
     return () => clearInterval(interval);
   }, [refetch]);
-
+  
   return (
     <>
       <div>
@@ -41,7 +42,7 @@ export default function Wallet() {
         <div className="flex items-center justify-between text-base">
           <input
             type="text"
-            value={balance ? `${renderFormattedBalance(balance)} ETH` : ""}
+            value={balance ? `${renderFormattedBalance(balance)} USDS` : ""}
             className="w-2/3 bg-gray-800 rounded-md px-2 py-1 mr-3 truncate font-mono"
             disabled
           />
