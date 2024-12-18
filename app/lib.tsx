@@ -1,5 +1,5 @@
 import { BN } from "fuels";
-import contractIds from "./scripts/contract-ids.json";
+import contractIds from "@/types/contract-ids.json";
 
 type environment_types = "local" | "testnet";
 
@@ -21,10 +21,9 @@ export const providerUrl =
     : testnetProviderUrl;
 export const playgroundUrl = providerUrl.replace("v1/graphql", "v1/playground");
 
-export const usdsContractAddress = contractIds.USDS_CONTRACT_ADDRESS;
-export const liquidityPoolContractAddress =
-  contractIds.LIQUIDITY_POOL_CONTRACT_ADDRESS;
-export const gameContractAddress = contractIds.GAME_CONTRACT_ADDRESS;
+export const usdsContractAddress = contractIds.usds;
+export const liquidityPoolContractAddress = contractIds.liquidityPool;
+export const gameContractAddress = contractIds.game;
 export const testnetFaucetUrl = "https://faucet-testnet.fuel.network/";
 
 export const renderTransactionId = (transactionId: string) => {

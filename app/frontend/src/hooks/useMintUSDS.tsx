@@ -6,7 +6,7 @@ import { usdsContractAddress } from "../../../lib";
 import { bn } from "fuels";
 import { IdentityInput, Usds } from "@/types/contracts/Usds";
 
-const MINT_AMOUNT = 1_000_000;
+const MINT_AMOUNT = 100_000_000_000;
 
 export const useMintUSDS = () => {
   const { wallet } = useWallet();
@@ -17,6 +17,7 @@ export const useMintUSDS = () => {
         throw new Error("Wallet must be connected to mint USDS");
       }
 
+      console.log(`usdsContractAddress`, usdsContractAddress);
       const usdsContract = new Usds(usdsContractAddress, wallet);
       const walletIdentity: IdentityInput = {
         Address: { bits: wallet.address.toString() },
@@ -31,11 +32,8 @@ export const useMintUSDS = () => {
         .call();
     
       await response.waitForResult();
-
-      return;
     },
-    onError: (error) => {
-      console.log(`error`, error);
+    onError: () => {
       toast.error("Error minting USDS");
     },
     onSuccess: () => {
