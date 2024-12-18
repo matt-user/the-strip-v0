@@ -12,6 +12,7 @@ export const playgroundUrl = providerUrl.replace("v1/graphql", "v1/playground");
 
 export const usdsContractAddress = contractIds.USDS_CONTRACT_ADDRESS;
 export const liquidityPoolContractAddress = contractIds.LIQUIDITY_POOL_CONTRACT_ADDRESS;
+export const gameContractAddress = contractIds.GAME_CONTRACT_ADDRESS;
 export const testnetFaucetUrl = "https://faucet-testnet.fuel.network/";
 
 export const renderTransactionId = (transactionId: string) => {

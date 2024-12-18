@@ -23,7 +23,6 @@ export default function LiquidityPoolContract() {
     const updateDeposits = async (wallet: Account) => {
           const liquidityPool = new LiquidityPool(liquidityPoolContractAddress, wallet);
           const res = await liquidityPool.functions.total_deposits().dryRun();
-          console.log(res);
           setTotalDeposits(res.value.toNumber());
           setLiquidityPool(liquidityPool);
     }

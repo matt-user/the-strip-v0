@@ -10,6 +10,7 @@ import Wallet from "../components/Wallet";
 import LiquidityPoolContract from "../components/LiquidityPoolContract";
 import Faucet from "../components/Faucet";
 import { providerUrl } from "../../../lib";
+import GameContract from "@/components/GameContract";
 
 function App() {
   const { connect } = useConnectUI();
@@ -69,8 +70,8 @@ function App() {
                   </div>
 
                   {view === "Wallet" && <Wallet />}
-                  {view === "Liqudity Pool" && <LiquidityPoolContract />}
-                  {/* {view === "Games" && <GameContract />} */}
+                  {view === "Liquidity Pool" && <LiquidityPoolContract />}
+                  {view === "Games" && <GameContract />}
                   {view === "Faucet" && <Faucet />}
                 </section>
               )}

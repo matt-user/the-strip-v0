@@ -30,10 +30,10 @@ use liquidity_pool_abi::LiquidityPool;
 use std::array_conversions::b256::*;
 
 const VRF_ADDR = 0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc4828d;
-const BASE_ASSET: AssetId = AssetId::from(0x9ae5b658754e096e4d681c548daf46354495a437cc61492599e33fc64dcdc30c);
-const LIQUIDITY_POOL = 0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc4828d;
+
 configurable {
-    OWNER: Identity = Identity::Address(Address::from(0x656A68f0d8Fb82505BCD2bE28F6B7600cf427D828f3E3F9AAcdEf03a12D8f16C)),
+    LIQUIDITY_POOL: ContractId = ContractId::from(0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc4828d),
+    BASE_ASSET: AssetId = AssetId::zero(),
     MATURITY: u32 = 10,
 }
 
@@ -91,23 +91,29 @@ enum GameError {
 
 abi Game {
     #[storage(write)]
-    fn initialize(new_owner: Option<Identity>);
+    fn initialize(new_owner: Identity);
 
     // User sends USD to place bet on outcome of game
     // call needs to include liquidity pool
     #[storage(write, read)]
+    #[payable]
     fn place_bet(outcome: Outcome);
 
     // Request the contract to generate a random number
     // locks bets, no users can place bets after this function call
     // restricted to the owner
     #[storage(write, read)]
+    #[payable]
     fn request_random(seed: b256);
 
     // Fulfill the random number request
     // payout bets and send remaining collateral to liquidity pool
     #[storage(write, read)]
     fn fulfill_random();
+
+    // Get all the bets
+    #[storage(read)]
+    fn get_all_bets() -> Vec<(Identity, Outcome, u64)>;
 }
 
 storage {
@@ -131,14 +137,12 @@ impl Game for Contract {
     ///
     /// * Writes: `1`
     #[storage(write)]
-    fn initialize(new_owner: Option<Identity>) {
-        match new_owner {
-            None => initialize_ownership(OWNER),
-            Some(new_owner) => initialize_ownership(new_owner),
-        }
+    fn initialize(new_owner: Identity) {
+        initialize_ownership(new_owner);
     }
 
     #[storage(write, read)]
+    #[payable]
     fn place_bet(outcome: Outcome) {
         require_not_paused();
         assert(msg_asset_id() == BASE_ASSET);
@@ -147,11 +151,12 @@ impl Game for Contract {
         storage
             .bets
             .push((msg_sender().unwrap(), outcome, msg_amount()));
-        let liquidity_pool = abi(LiquidityPool, LIQUIDITY_POOL);
+        let liquidity_pool = abi(LiquidityPool, LIQUIDITY_POOL.into());
         liquidity_pool.request_collateral(msg_amount() * 3);
     }
 
     #[storage(write, read)]
+    #[payable]
     fn request_random(seed: b256) {
         only_owner();
         require(
@@ -209,10 +214,21 @@ impl Game for Contract {
             i += 1;
         }
         transfer(
-            Identity::Address(Address::from(LIQUIDITY_POOL)),
+            Identity::ContractId(LIQUIDITY_POOL),
             BASE_ASSET,
             money_left,
         );
         storage.request_id.write(None);
+    }
+
+    #[storage(read)]
+    fn get_all_bets() -> Vec<(Identity, Outcome, u64)> {
+        let mut bets = Vec::new();
+        let mut i = 0;
+        while i < storage.bets.len() {
+            bets.push(storage.bets.get(i).unwrap().read());
+            i += 1;
+        }
+        return bets;
     }
 }
