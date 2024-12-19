@@ -1,5 +1,6 @@
 import { BN } from "fuels";
-import contractIds from "@/types/contract-ids.json";
+
+import contractIds from "./frontend/src/types/contract-ids.json";
 
 type environment_types = "local" | "testnet";
 

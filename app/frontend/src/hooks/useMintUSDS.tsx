@@ -17,7 +17,6 @@ export const useMintUSDS = () => {
         throw new Error("Wallet must be connected to mint USDS");
       }
 
-      console.log(`usdsContractAddress`, usdsContractAddress);
       const usdsContract = new Usds(usdsContractAddress, wallet);
       const walletIdentity: IdentityInput = {
         Address: { bits: wallet.address.toString() },
