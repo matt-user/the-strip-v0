@@ -3,6 +3,7 @@ import {
   createConfig,
   DeployedData,
   FuelsConfig,
+  getMintedAssetId,
 } from "fuels";
 import dotenv from "dotenv";
 import { Provider, Wallet, defaultConsensusKey } from "fuels";
@@ -34,9 +35,10 @@ export default createConfig({
         throw new Error("USDS contract not deployed");
       }
 
-      let depositAssetId = { bits: usdsContract.contractId };
+      const depositAssetIdString = getMintedAssetId(usdsContract.contractId, "0x0000000000000000000000000000000000000000000000000000000000000000");
 
-      console.log(`depositAssetId`, depositAssetId);
+      const depositAssetId = { bits: depositAssetIdString };
+
       return {
         configurableConstants: { DEPOSIT_ASSET_ID: depositAssetId },
       };

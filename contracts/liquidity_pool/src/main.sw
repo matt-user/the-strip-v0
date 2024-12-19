@@ -335,8 +335,6 @@ impl LiquidityPool for Contract {
     fn deposit() {
         require_not_paused();
         let asset_id = msg_asset_id();
-        log(69);
-        log(asset_id);
         require(
             asset_id == DEPOSIT_ASSET_ID,
             LiquidityPoolError::WrongDepositedAsset,

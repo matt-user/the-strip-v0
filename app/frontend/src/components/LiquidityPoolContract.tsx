@@ -9,7 +9,6 @@ import { Account } from "fuels";
 import { useAddLiquidity } from "@/hooks/useAddLiquidity";
 
 export default function LiquidityPoolContract() {
-  const [liquidityPool, setLiquidityPool] = useState<LiquidityPool>();
   const [totalDeposits, setTotalDeposits] = useState<number>(0);
   const [totalCollateral, setTotalCollateral] = useState<number>(0);
   const [liquidityToAdd, setLiquidityToAdd] = useState<number>();
@@ -26,7 +25,6 @@ export default function LiquidityPoolContract() {
       );
       const res = await liquidityPool.functions.total_deposits().dryRun();
       setTotalDeposits(res.value.toNumber());
-      setLiquidityPool(liquidityPool);
     };
 
     const updateCollateral = async (wallet: Account) => {
@@ -36,7 +34,6 @@ export default function LiquidityPoolContract() {
       );
       const res = await liquidityPool.functions.available_collateral().dryRun();
       setTotalCollateral(res.value.toNumber());
-      setLiquidityPool(liquidityPool);
     };
     
     if (wallet) {
@@ -44,23 +41,6 @@ export default function LiquidityPoolContract() {
       updateCollateral(wallet);
     }
   }, [wallet]);
-
-  // async function addLiquidity() {
-  //   if (!wallet || !liquidityPool || !liquidityToAdd) return;
-  //   setIsLoading(true);
-
-  //   try {
-  //     const { waitForResult } = await liquidityPool.functions
-  //       .deposit()
-  //       .callParams({ forward: [liquidityToAdd * 10 ** 9, usdsAssetId] })
-  //       .call();
-  //     await waitForResult();
-  //   } catch (error) {
-  //     console.error(error);
-  //     errorNotification("Error adding liquidity counter");
-  //   }
-  //   setIsLoading(false);
-  // }
 
   return (
     <>
