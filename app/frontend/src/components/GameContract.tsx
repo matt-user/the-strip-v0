@@ -9,9 +9,10 @@ import {
 } from "@/types/contracts/Game";
 import Button from "./Button";
 import { gameContractAddress } from "../../../lib";
-import { useNotification } from "../hooks/useNotification";
-import { Account, BN, getRandomB256 } from "fuels";
+import { Account, BN } from "fuels";
 import { usePlaceBet } from "@/hooks/usePlaceBet";
+import { useRequestRandom } from "@/hooks/useRequestRandom";
+import { useProcessOutcomes } from "@/hooks/useProcessOutcomes";
 
 type Bet = {
   user: string;
@@ -20,13 +21,12 @@ type Bet = {
 };
 
 export default function GameContract() {
-  const { errorNotification } = useNotification();
-  const [game, setGame] = useState<Game>();
   const [bets, setBets] = useState<Bet[]>([]);
   const [betOutcome, setBetOutcome] = useState<OutcomeInput>(OutcomeInput.BLUE);
   const [betAmount, setBetAmount] = useState<number>();
-  const [isLoading, setIsLoading] = useState(false);
   const placeBet = usePlaceBet();
+  const requestRandom = useRequestRandom();
+  const processOutcomes = useProcessOutcomes();
 
   const { wallet } = useWallet();
 
@@ -59,7 +59,6 @@ export default function GameContract() {
           };
         })
       );
-      setGame(game);
     };
     if (wallet) {
       updateDeposits(wallet);
@@ -83,38 +82,38 @@ export default function GameContract() {
   //   setIsLoading(false);
   // }
 
-  async function requestRandom() {
-    if (!wallet || !game) return;
-    setIsLoading(true);
+  // async function requestRandom() {
+  //   if (!wallet || !game) return;
+  //   setIsLoading(true);
 
-    try {
-      const { waitForResult } = await game.functions
-        .request_random(getRandomB256())
-        .callParams({ forward: [10000, wallet.provider.getBaseAssetId()] })
-        .call();
-      await waitForResult();
-    } catch (error) {
-      console.error(error);
-    }
-    setIsLoading(false);
-  }
+  //   try {
+  //     const { waitForResult } = await game.functions
+  //       .request_random(getRandomB256())
+  //       .callParams({ forward: [10000, wallet.provider.getBaseAssetId()] })
+  //       .call();
+  //     await waitForResult();
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  //   setIsLoading(false);
+  // }
 
-  async function processOutcomes() {
-    if (!wallet || !game) return;
-    setIsLoading(true);
+  // async function processOutcomes() {
+  //   if (!wallet || !game) return;
+  //   setIsLoading(true);
 
-    try {
-      const { waitForResult } = await game.functions.fulfill_random().call();
-      const res = await waitForResult();
-      if (res.value.Err) {
-        throw new Error(res.value.Err);
-      }
-    } catch (error) {
-      console.error(error);
-      errorNotification("Error adding liquidity counter");
-    }
-    setIsLoading(false);
-  }
+  //   try {
+  //     const { waitForResult } = await game.functions.fulfill_random().call();
+  //     const res = await waitForResult();
+  //     if (res.value.Err) {
+  //       throw new Error(res.value.Err);
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     errorNotification("Error adding liquidity counter");
+  //   }
+  //   setIsLoading(false);
+  // }
 
   return (
     <>
@@ -170,17 +169,23 @@ export default function GameContract() {
               }
             }}
             className="w-1/3"
-            disabled={isLoading}
+            disabled={placeBet.isPending}
           >
             Place Bet
           </Button>
         </div>
       </div>
       <div>
-        <Button onClick={() => requestRandom()} disabled={isLoading}>
+        <Button
+          onClick={() => requestRandom.mutate()}
+          disabled={requestRandom.isPending}
+        >
           Request Random
         </Button>
-        <Button onClick={() => processOutcomes()} disabled={isLoading}>
+        <Button
+          onClick={() => processOutcomes.mutate()}
+          disabled={processOutcomes.isPending}
+        >
           Process Outcomes
         </Button>
       </div>

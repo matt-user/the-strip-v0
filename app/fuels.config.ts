@@ -9,7 +9,7 @@ import {
 import dotenv from "dotenv";
 import { Provider, Wallet, defaultConsensusKey } from "fuels";
 
-import { LiquidityPool } from "./frontend/src/types";
+import { Game, LiquidityPool } from "./frontend/src/types";
 import { providerUrl } from "./lib";
 import { IdentityInput, Usds } from "./frontend/src/types/contracts/Usds";
 
@@ -154,6 +154,10 @@ export default createConfig({
         .transfer_ownership(newOwner)
         .call();
       await setNewOwnerResponse.waitForResult();
+
+      const game = new Game(gameContract.contractId, deployerWallet);
+      const gameResponse = await game.functions.initialize(newOwner).call();
+      await gameResponse.waitForResult();
     }
   },
 });
