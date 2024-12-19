@@ -65,56 +65,6 @@ export default function GameContract() {
     }
   }, [wallet]);
 
-  // async function placeBet() {
-  //   if (!wallet || !game || !betAmount || !betOutcome) return;
-  //   setIsLoading(true);
-
-  //   try {
-  //     const { waitForResult } = await game.functions.place_bet(betOutcome).callParams({forward: [betAmount * 10** 9, usdsAssetId]}).call();
-  //     const res = await waitForResult();
-  //     if (res.value.Err) {
-  //       throw new Error(res.value.Err);
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     errorNotification("Error adding liquidity counter");
-  //   }
-  //   setIsLoading(false);
-  // }
-
-  // async function requestRandom() {
-  //   if (!wallet || !game) return;
-  //   setIsLoading(true);
-
-  //   try {
-  //     const { waitForResult } = await game.functions
-  //       .request_random(getRandomB256())
-  //       .callParams({ forward: [10000, wallet.provider.getBaseAssetId()] })
-  //       .call();
-  //     await waitForResult();
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  //   setIsLoading(false);
-  // }
-
-  // async function processOutcomes() {
-  //   if (!wallet || !game) return;
-  //   setIsLoading(true);
-
-  //   try {
-  //     const { waitForResult } = await game.functions.fulfill_random().call();
-  //     const res = await waitForResult();
-  //     if (res.value.Err) {
-  //       throw new Error(res.value.Err);
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     errorNotification("Error adding liquidity counter");
-  //   }
-  //   setIsLoading(false);
-  // }
-
   return (
     <>
       <div>

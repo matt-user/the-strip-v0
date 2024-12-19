@@ -10,7 +10,8 @@
     "build": "fuels build",
     "lint": "eslint .",
     "fuels:dev": "fuels dev",
-    "test": "vitest"
+    "test": "vitest",
+    "cp:env": "cp .env.example .env && cp frontend/.env.example frontend/.env"
   },
   "dependencies": {
     "fuels": "^0.97.2"

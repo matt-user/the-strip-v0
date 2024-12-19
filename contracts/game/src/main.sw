@@ -33,6 +33,7 @@ const VRF_ADDR = 0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc48
 
 configurable {
     LIQUIDITY_POOL: ContractId = ContractId::from(0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc4828d),
+    // TODO: change name to DEPOSIT_ASSET_ID
     BASE_ASSET: AssetId = AssetId::zero(),
     MATURITY: u32 = 10,
 }
