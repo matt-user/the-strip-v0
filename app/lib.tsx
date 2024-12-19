@@ -16,10 +16,11 @@ export const isTestnet = environment === environments.TESTNET;
 
 export const testnetProviderUrl = "https://testnet.fuel.network/v1/graphql";
 
-export const providerUrl =
-  environment === "local"
-    ? "http://127.0.0.1:4000/v1/graphql"
-    : testnetProviderUrl;
+// TODO: Need to fix to use local also but when both are enabled it never detects testnet
+export const providerUrl = testnetProviderUrl;
+  // environment === "local"
+  //   ? "http://127.0.0.1:4000/v1/graphql"
+  //   : testnetProviderUrl;
 export const playgroundUrl = providerUrl.replace("v1/graphql", "v1/playground");
 
 export const usdsContractAddress = contractIds.usds;

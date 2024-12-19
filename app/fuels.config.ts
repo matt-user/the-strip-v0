@@ -100,7 +100,7 @@ export default createConfig({
     }
 
     const provider = await Provider.create(providerUrl);
-    const privateKey = process.env.privateKey ?? defaultConsensusKey;
+    const privateKey = process.env.DEPLOY_PRIVATE_KEY ?? defaultConsensusKey;
     const deployerWallet = Wallet.fromPrivateKey(privateKey, provider);
 
     const usds = new Usds(usdsContract.contractId, deployerWallet);
