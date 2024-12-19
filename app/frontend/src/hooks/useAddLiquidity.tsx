@@ -26,7 +26,8 @@ export const useAddLiquidity = () => {
         .callParams({ forward: [liquidityToAdd * 10 ** 9, usdsAssetId] })
         .call();
 
-      await response.waitForResult();
+      const result = await response.waitForResult();
+      console.log(`result`, result);
     },
     onError: (error) => {
       console.error(error.message);
