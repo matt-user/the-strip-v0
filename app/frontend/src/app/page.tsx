@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { useRouter } from "../hooks/useRouter";
 import Button from "../components/Button";
 import Info from "../components/Info";
-import Wallet from "../components/Wallet";
+import WalletHeader from "../components/WalletHeader";
 import LiquidityPoolContract from "../components/LiquidityPoolContract";
 import Faucet from "../components/Faucet";
 import { providerUrl } from "../../../lib";
@@ -24,58 +24,48 @@ function App() {
   }, [refetch]);
 
   return (
-    <main className="flex items-center justify-center lg:pt-6 text-zinc-50/90">
-      <h1 className="fixed top-4 left-4 text-3xl font-medium">Strip</h1>
+    <main className="h-screen flex flex-col bg-gradient-to-t from-gray-800 to-blue-700 text-zinc-50/90">
+      <header className="flex justify-between items-center p-4">
+        <button className="text-3xl font-bold text-white" onClick={() => setRoute("")}>Strip</button>
+        <div className='flex space-x-32 text-white'>
+          {views.map((viewName) => (
+            <button
+              key={viewName}
+              className="text-lg px-4 py-2 text-white bg-transparent hover:rounded-full hover:bg-gray-300 hover:bg-opacity-20"
+              onClick={() => setRoute(viewName)}
+            >
+              {viewName}
+            </button>
+          ))}
+        </div>
+        <div className="text-lg">
+          <WalletHeader />
+        </div>
+      </header>
       <div id="container" className="mx-8 mb-32 w-full max-w-6xl">
         <div className="gradient-border rounded-2xl">
           <Info />
           <div className="col-span-5">
-            <div className="gradient-border h-full rounded-xl bg-gradient-to-b from-blue-100 to-blue-500 fixed top-4 right-4">
-              {!isConnected && (
-                <section className="flex h-full flex-col justify-center space-y-6 px-4 py-8 lg:px-[25%]">
-                  <Button onClick={() => connect()}>Connect Wallet</Button>
-                </section>
-              )}
-
-              {isConnected && !isConnectedToCorrectNetwork && (
-                <section className="flex h-full flex-col justify-center space-y-6 px-4 py-8">
-                  <p className="text-center">
-                    You are connected to the wrong network. Please switch to{" "}
-                    <a
-                      href={providerUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-green-500/80 transition-colors hover:text-green-500"
-                    >
-                      {providerUrl}
-                    </a>
-                    &nbsp;in your wallet.
-                  </p>
-                </section>
-              )}
-
-              {isConnected && isConnectedToCorrectNetwork && (
-                <section className="flex h-full flex-col justify-center space-y-6 px-4 py-8">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    {views.map((viewName) => (
-                      <Button
-                        key={viewName}
-                        className="w-full sm:flex-1 capitalize"
-                        color={view === viewName ? "primary" : "inactive"}
-                        onClick={() => setRoute(viewName)}
-                      >
-                        {viewName}
-                      </Button>
-                    ))}
-                  </div>
-
-                  {view === "Wallet" && <Wallet />}
-                  {view === "Liquidity Pool" && <LiquidityPoolContract />}
-                  {view === "Games" && <GameContract />}
-                  {view === "Faucet" && <Faucet />}
-                </section>
-              )}
-            </div>
+            {isConnected && !isConnectedToCorrectNetwork && (
+              <section className="flex h-full flex-col justify-center space-y-6 px-4 py-8">
+                <p className="text-center">
+                  You are connected to the wrong network. Please switch to{" "}
+                  <a
+                    href={providerUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-green-500/80 transition-colors hover:text-green-500"
+                  >
+                    {providerUrl}
+                  </a>
+                  &nbsp;in your wallet.
+                </p>
+              </section>
+            )}
+            {view === "" && (<div>Home</div>)}
+            {view === "Liquidity Pool" && <LiquidityPoolContract />}
+            {view === "Games" && <GameContract />}
+            {view === "Faucet" && <Faucet />}
           </div>
         </div>
       </div>

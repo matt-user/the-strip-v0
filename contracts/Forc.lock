@@ -51,6 +51,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "usds"
+source = "member"
+dependencies = [
+    "standards git+https://github.com/FuelLabs/sway-standards?tag=v0.6.1#792639cdf391565e6e6a02482ea8a46d9604a6f5",
+    "std",
+]
+
+[[package]]
 name = "vrf_abi"
 source = "path+from-root-DE298B072C8038D0"
 dependencies = ["std"]
