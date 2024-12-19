@@ -10,6 +10,7 @@ import { Provider, Wallet, defaultConsensusKey } from "fuels";
 
 import { LiquidityPool } from "./frontend/src/types";
 import { providerUrl } from "./lib";
+import { IdentityInput } from "./frontend/src/types/contracts/Usds";
 
 dotenv.config({
   path: [".env.local", ".env"],
@@ -35,7 +36,10 @@ export default createConfig({
         throw new Error("USDS contract not deployed");
       }
 
-      const depositAssetIdString = getMintedAssetId(usdsContract.contractId, "0x0000000000000000000000000000000000000000000000000000000000000000");
+      const depositAssetIdString = getMintedAssetId(
+        usdsContract.contractId,
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      );
 
       const depositAssetId = { bits: depositAssetIdString };
 
@@ -46,7 +50,7 @@ export default createConfig({
 
     return {};
   },
-  onDeploy: async (config: FuelsConfig, data: DeployedData) => {
+  onDeploy: async (_config: FuelsConfig, data: DeployedData) => {
     const contracts = data.contracts;
 
     const liquidityPoolContract = contracts?.find((contract) => {
@@ -62,23 +66,37 @@ export default createConfig({
     }
 
     const provider = await Provider.create(providerUrl);
-    const privateKey = defaultConsensusKey;
-    const wallet = Wallet.fromPrivateKey(privateKey, provider);
+    const privateKey = process.env.privateKey ?? defaultConsensusKey;
+    const deployerWallet = Wallet.fromPrivateKey(privateKey, provider);
 
     const liquidityPool = new LiquidityPool(
       liquidityPoolContract.contractId,
-      wallet
+      deployerWallet
     );
 
-    const response = await liquidityPool.functions
+    const initializeResponse = await liquidityPool.functions
       .initialize(
         {
-          Address: { bits: wallet.address.toString() },
+          Address: { bits: deployerWallet.address.toString() },
         },
         { bits: gameContract.contractId }
       )
       .call();
+    await initializeResponse.waitForResult();
 
-	await response.waitForResult();
+    const startVaultResponse = await liquidityPool.functions
+      .start_vault()
+      .call();
+    await startVaultResponse.waitForResult();
+
+    // TODO: implement prod deployment
+    const newOwnerPublicKey = process.env.publicKey;
+    if (newOwnerPublicKey) {
+      const newOwner: IdentityInput = { Address: { bits: newOwnerPublicKey } };
+      const setNewOwnerResponse = await liquidityPool.functions
+        .transfer_ownership(newOwner)
+        .call();
+      await setNewOwnerResponse.waitForResult();
+    }
   },
 });

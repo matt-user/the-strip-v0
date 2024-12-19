@@ -47,6 +47,8 @@ export type DepositInput = { amount: BigNumberish };
 export type DepositOutput = { amount: BN };
 export type OwnershipSetInput = { new_owner: IdentityInput };
 export type OwnershipSetOutput = { new_owner: IdentityOutput };
+export type OwnershipTransferredInput = { new_owner: IdentityInput, previous_owner: IdentityInput };
+export type OwnershipTransferredOutput = { new_owner: IdentityOutput, previous_owner: IdentityOutput };
 export type RoundInfoInput = { round: BigNumberish, has_vault_started: boolean, round_start_time: BigNumberish };
 export type RoundInfoOutput = { round: BN, has_vault_started: boolean, round_start_time: BN };
 export type RoundStartedInput = { round: BigNumberish, round_collateral: BigNumberish };
@@ -137,6 +139,11 @@ const abi = {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
       "concreteTypeId": "e1ef35033ea9d2956f17c3292dea4a46ce7d61fdf37bbebe03b7b965073f43b5",
       "metadataTypeId": 16
+    },
+    {
+      "type": "struct sway_libs::ownership::events::OwnershipTransferred",
+      "concreteTypeId": "b3fffbcb3158d7c010c31b194b60fb7857adb4ad61bdcf4b8b42958951d9f308",
+      "metadataTypeId": 17
     },
     {
       "type": "u64",
@@ -380,6 +387,20 @@ const abi = {
       "components": [
         {
           "name": "new_owner",
+          "typeId": 4
+        }
+      ]
+    },
+    {
+      "type": "struct sway_libs::ownership::events::OwnershipTransferred",
+      "metadataTypeId": 17,
+      "components": [
+        {
+          "name": "new_owner",
+          "typeId": 4
+        },
+        {
+          "name": "previous_owner",
           "typeId": 4
         }
       ]
@@ -1219,6 +1240,55 @@ const abi = {
       ]
     },
     {
+      "inputs": [
+        {
+          "name": "new_owner",
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
+        }
+      ],
+      "name": "transfer_ownership",
+      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Transfer ownership to a new owner"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When called by a non-owner"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    },
+    {
       "inputs": [],
       "name": "withdrawal",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
@@ -1333,6 +1403,10 @@ const abi = {
     {
       "logId": "12374875781412977518",
       "concreteTypeId": "abbc63f552b47b6ec05ebba9e1249b1ee4a7c6ec7da80d710eb6dc7c2a5370eb"
+    },
+    {
+      "logId": "12970362301975156672",
+      "concreteTypeId": "b3fffbcb3158d7c010c31b194b60fb7857adb4ad61bdcf4b8b42958951d9f308"
     }
   ],
   "messagesTypes": [],
@@ -1340,7 +1414,7 @@ const abi = {
     {
       "name": "DEPOSIT_ASSET_ID",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 49616
+      "offset": 51056
     }
   ]
 };
@@ -1390,6 +1464,7 @@ export class LiquidityPoolInterface extends Interface {
     signal_withdrawal: FunctionFragment;
     start_vault: FunctionFragment;
     total_deposits: FunctionFragment;
+    transfer_ownership: FunctionFragment;
     withdrawal: FunctionFragment;
   };
 }
@@ -1416,6 +1491,7 @@ export class LiquidityPool extends Contract {
     signal_withdrawal: InvokeFunction<[amount: BigNumberish], void>;
     start_vault: InvokeFunction<[], void>;
     total_deposits: InvokeFunction<[], BN>;
+    transfer_ownership: InvokeFunction<[new_owner: IdentityInput], void>;
     withdrawal: InvokeFunction<[], void>;
   };
 

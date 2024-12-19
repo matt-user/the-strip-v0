@@ -14,6 +14,7 @@ use sway_libs::{
         _owner,
         initialize_ownership,
         only_owner,
+        transfer_ownership
     },
     pausable::{
         _is_paused,
@@ -169,6 +170,9 @@ abi LiquidityPool {
 
     #[storage(read)]
     fn available_collateral() -> u64;
+
+    #[storage(read, write)]
+    fn transfer_ownership(new_owner: Identity);
 }
 
 impl LiquidityPool for Contract {
@@ -527,6 +531,18 @@ impl LiquidityPool for Contract {
     fn deposit_for_user() -> u64 {
         let sender = msg_sender().unwrap();
         storage.deposits.get(sender).read()
+    }
+
+    /// Transfer ownership to a new owner
+    ///
+    /// # Reverts
+    ///
+    /// * When called by a non-owner
+    #[storage(read, write)]
+    fn transfer_ownership(new_owner: Identity) {
+        only_owner();
+        // TODO: should we required_paused?
+        transfer_ownership(new_owner);
     }
 }
 
