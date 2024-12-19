@@ -1319,6 +1319,14 @@ const abi = {
       "concreteTypeId": "8b3afcadf894415a10b09fc3717487e33802c8ffbb030edafe84ca4a71b280bc"
     },
     {
+      "logId": "1515152261580153489",
+      "concreteTypeId": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0"
+    },
+    {
+      "logId": "13866877265493744985",
+      "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974"
+    },
+    {
       "logId": "2102307375703768139",
       "concreteTypeId": "1d2ce56b7181bc4bbcfc46234dbd20eff7f64898591d7aa139af7b018310f68f"
     },
@@ -1340,7 +1348,7 @@ const abi = {
     {
       "name": "DEPOSIT_ASSET_ID",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 49616
+      "offset": 50008
     }
   ]
 };
