@@ -30,33 +30,23 @@ function App() {
           <WalletHeader />
         </div>
       </header>
-      <div id="container" className="mx-8 mb-32 w-full max-w-6xl">
-        <div className="gradient-border rounded-2xl">
-          <Info />
-          <div className="col-span-5">
-            {isConnected && !isConnectedToCorrectNetwork && (
-              <section className="flex h-full flex-col justify-center space-y-6 px-4 py-8">
-                <p className="text-center">
-                  You are connected to the wrong network. Please switch to{" "}
-                  <a
-                    href={providerUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-green-500/80 transition-colors hover:text-green-500"
-                  >
-                    {providerUrl}
-                  </a>
-                  &nbsp;in your wallet.
-                </p>
-              </section>
-            )}
-            {view === "" && <div>Home</div>}
+            {view === "" && 
+              <div className="flex items-center justify-center h-full">
+                <h1 className="text-5xl font-bold text-white">
+                  The first fully decentralised Casino
+                </h1>
+              </div>}
             {view === "Liquidity Pool" && <LiquidityPoolContract />}
             {view === "Games" && <GameContract />}
             {view === "Faucet" && <Faucet />}
-          </div>
-        </div>
-      </div>
+            <div className="absolute bottom-0 mr-4 mb-4 pl-4 right-0 pr-2 py-1 rounded-md bg-gray-900 border-1 border-gray-700">
+              <div className="flex justify-between">
+              <span className="pr-2 text-green-700">●</span>
+              <p className="text-m">
+                Testnet
+              </p>
+              </div>
+              </div>
     </main>
   );
 }

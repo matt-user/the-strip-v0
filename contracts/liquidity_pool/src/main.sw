@@ -47,6 +47,7 @@ storage {
     withdraws: StorageMap<Identity, u64> = StorageMap {},
     signaled_withdraws: StorageMap<Identity, u64> = StorageMap {},
     available_collateral: u64 = 0,
+    round_collateral: u64 = 0,
 }
 
 impl SRC5 for Contract {
@@ -171,6 +172,9 @@ abi LiquidityPool {
     #[storage(read)]
     fn available_collateral() -> u64;
 
+    #[storage(read)]
+    fn round_collateral() -> u64;
+
     #[storage(read, write)]
     fn transfer_ownership(new_owner: Identity);
 }
@@ -239,6 +243,7 @@ impl LiquidityPool for Contract {
             i += 1;
         }
         storage.available_collateral.write(available_collateral);
+        storage.round_collateral.write(available_collateral);
         storage.total_deposits.write(total_deposits);
 
         // TODO: emit event info about collateral and deposits
@@ -246,6 +251,11 @@ impl LiquidityPool for Contract {
             round,
             round_collateral: available_collateral,
         });
+    }
+
+    #[storage(read)]
+    fn round_collateral() -> u64 {
+        storage.round_collateral.read()
     }
 
     /// Get the current round info
@@ -316,6 +326,7 @@ impl LiquidityPool for Contract {
         }
         storage.total_deposits.write(total_deposits);
         storage.available_collateral.write(available_collateral);
+        storage.round_collateral.write(available_collateral);
     }
 
     #[storage(read, write)]

@@ -737,17 +737,17 @@ const abi = {
     {
       "name": "LIQUIDITY_POOL",
       "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
-      "offset": 51280
+      "offset": 52256
     },
     {
       "name": "BASE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 51248
+      "offset": 52224
     },
     {
       "name": "MATURITY",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 51312
+      "offset": 52288
     }
   ]
 };

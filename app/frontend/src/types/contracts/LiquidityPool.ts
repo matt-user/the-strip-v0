@@ -47,6 +47,8 @@ export type DepositInput = { amount: BigNumberish };
 export type DepositOutput = { amount: BN };
 export type OwnershipSetInput = { new_owner: IdentityInput };
 export type OwnershipSetOutput = { new_owner: IdentityOutput };
+export type OwnershipTransferredInput = { new_owner: IdentityInput, previous_owner: IdentityInput };
+export type OwnershipTransferredOutput = { new_owner: IdentityOutput, previous_owner: IdentityOutput };
 export type RoundInfoInput = { round: BigNumberish, has_vault_started: boolean, round_start_time: BigNumberish };
 export type RoundInfoOutput = { round: BN, has_vault_started: boolean, round_start_time: BN };
 export type RoundStartedInput = { round: BigNumberish, round_collateral: BigNumberish };
@@ -137,6 +139,11 @@ const abi = {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
       "concreteTypeId": "e1ef35033ea9d2956f17c3292dea4a46ce7d61fdf37bbebe03b7b965073f43b5",
       "metadataTypeId": 16
+    },
+    {
+      "type": "struct sway_libs::ownership::events::OwnershipTransferred",
+      "concreteTypeId": "b3fffbcb3158d7c010c31b194b60fb7857adb4ad61bdcf4b8b42958951d9f308",
+      "metadataTypeId": 17
     },
     {
       "type": "u64",
@@ -380,6 +387,20 @@ const abi = {
       "components": [
         {
           "name": "new_owner",
+          "typeId": 4
+        }
+      ]
+    },
+    {
+      "type": "struct sway_libs::ownership::events::OwnershipTransferred",
+      "metadataTypeId": 17,
+      "components": [
+        {
+          "name": "new_owner",
+          "typeId": 4
+        },
+        {
+          "name": "previous_owner",
           "typeId": 4
         }
       ]
@@ -926,6 +947,19 @@ const abi = {
     },
     {
       "inputs": [],
+      "name": "round_collateral",
+      "output": "1506e6f44c1d6291cdf46395a8e573276a4fa79e8ace3fc891e092ef32d1b0a0",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
       "name": "send_remaining_collateral",
       "output": "f4b351b641758c52ac41a33c9bd2d2a0ede6a68b14eed11fc50a3d1501039c4e",
       "attributes": [
@@ -1219,6 +1253,55 @@ const abi = {
       ]
     },
     {
+      "inputs": [
+        {
+          "name": "new_owner",
+          "concreteTypeId": "ab7cd04e05be58e3fc15d424c2c4a57f824a2a2d97d67252440a3925ebdc1335"
+        }
+      ],
+      "name": "transfer_ownership",
+      "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
+      "attributes": [
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " Transfer ownership to a new owner"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " # Reverts"
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            ""
+          ]
+        },
+        {
+          "name": "doc-comment",
+          "arguments": [
+            " * When called by a non-owner"
+          ]
+        },
+        {
+          "name": "storage",
+          "arguments": [
+            "read",
+            "write"
+          ]
+        }
+      ]
+    },
+    {
       "inputs": [],
       "name": "withdrawal",
       "output": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
@@ -1333,6 +1416,10 @@ const abi = {
     {
       "logId": "12374875781412977518",
       "concreteTypeId": "abbc63f552b47b6ec05ebba9e1249b1ee4a7c6ec7da80d710eb6dc7c2a5370eb"
+    },
+    {
+      "logId": "12970362301975156672",
+      "concreteTypeId": "b3fffbcb3158d7c010c31b194b60fb7857adb4ad61bdcf4b8b42958951d9f308"
     }
   ],
   "messagesTypes": [],
@@ -1340,12 +1427,16 @@ const abi = {
     {
       "name": "DEPOSIT_ASSET_ID",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 47736
+      "offset": 51744
     }
   ]
 };
 
 const storageSlots: StorageSlot[] = [
+  {
+    "key": "22eb98c3faeefe14775b05d4b17c2dc5194db35d72c08847c9c0953acf586445",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
   {
     "key": "2363bd25f30eb67114355bcc289cd76046f0650e5231933bc61f27892911d580",
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
@@ -1386,10 +1477,12 @@ export class LiquidityPoolInterface extends Interface {
     deposit_for_user: FunctionFragment;
     initialize: FunctionFragment;
     request_collateral: FunctionFragment;
+    round_collateral: FunctionFragment;
     send_remaining_collateral: FunctionFragment;
     signal_withdrawal: FunctionFragment;
     start_vault: FunctionFragment;
     total_deposits: FunctionFragment;
+    transfer_ownership: FunctionFragment;
     withdrawal: FunctionFragment;
   };
 }
@@ -1412,10 +1505,12 @@ export class LiquidityPool extends Contract {
     deposit_for_user: InvokeFunction<[], BN>;
     initialize: InvokeFunction<[new_owner: IdentityInput, game_contract_id: ContractIdInput], void>;
     request_collateral: InvokeFunction<[amount: BigNumberish], Result<void, LiquidityPoolErrorOutput>>;
+    round_collateral: InvokeFunction<[], BN>;
     send_remaining_collateral: InvokeFunction<[], Result<void, LiquidityPoolErrorOutput>>;
     signal_withdrawal: InvokeFunction<[amount: BigNumberish], void>;
     start_vault: InvokeFunction<[], void>;
     total_deposits: InvokeFunction<[], BN>;
+    transfer_ownership: InvokeFunction<[new_owner: IdentityInput], void>;
     withdrawal: InvokeFunction<[], void>;
   };
 

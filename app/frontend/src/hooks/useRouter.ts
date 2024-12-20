@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
  */
 export const useRouter = () => {
   const views = ["Liquidity Pool", "Games"];
-  const [view, setView] = useState<string>("wallet");
+  const [view, setView] = useState<string>("");
   const queryParam = "v";
 
   const getViewFromUrl = () => {
