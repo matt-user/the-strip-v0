@@ -6,7 +6,7 @@
 
 /*
   Fuels version: 0.97.2
-  Forc version: 0.26.0
+  Forc version: 0.66.5
   Fuel-Core version: 0.40.0
 */
 
@@ -22,7 +22,7 @@ import type {
   InvokeFunction,
 } from 'fuels';
 
-import type { Enum, Vec, Result } from "./common";
+import type { Option, Enum, Vec, Result } from "./common";
 
 export enum AccessErrorInput { NotOwner = 'NotOwner' };
 export enum AccessErrorOutput { NotOwner = 'NotOwner' };
@@ -109,9 +109,17 @@ const abi = {
       "metadataTypeId": 7
     },
     {
+      "type": "enum std::option::Option<enum Outcome>",
+      "concreteTypeId": "042fcf127f8b7962a33a0092a79e1e5868c73a96db9e27b15fb3644b86f6d75a",
+      "metadataTypeId": 8,
+      "typeArguments": [
+        "1ab10657bbd8ea67349db4e5e4cb8dcfe03a1aab6a751cdf7341e6f0833f227c"
+      ]
+    },
+    {
       "type": "enum std::result::Result<(),enum liquidity_pool_abi::LiquidityPoolError>",
       "concreteTypeId": "62c98b6959a49888acb319a34de58cc581918c47e31e3fe1d933f1aefb718188",
-      "metadataTypeId": 8,
+      "metadataTypeId": 9,
       "typeArguments": [
         "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d",
         "9c632f24dd550d0d95c9d4c0bb5a5b7cec8d24f9b5353c549e123b552a636e8f"
@@ -120,27 +128,27 @@ const abi = {
     {
       "type": "enum sway_libs::ownership::errors::InitializationError",
       "concreteTypeId": "1dfe7feadc1d9667a4351761230f948744068a090fe91b1bc6763a90ed5d3893",
-      "metadataTypeId": 9
+      "metadataTypeId": 10
     },
     {
       "type": "enum sway_libs::pausable::errors::PauseError",
       "concreteTypeId": "8b3afcadf894415a10b09fc3717487e33802c8ffbb030edafe84ca4a71b280bc",
-      "metadataTypeId": 10
+      "metadataTypeId": 11
     },
     {
       "type": "struct std::asset_id::AssetId",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "metadataTypeId": 15
+      "metadataTypeId": 16
     },
     {
       "type": "struct std::contract_id::ContractId",
       "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
-      "metadataTypeId": 16
+      "metadataTypeId": 17
     },
     {
       "type": "struct std::vec::Vec<(enum std::identity::Identity, enum Outcome, u64)>",
       "concreteTypeId": "1fef95959f24aaa8108666ecb32691fed31e7300c6b9f2ef1c4427da48b9761f",
-      "metadataTypeId": 18,
+      "metadataTypeId": 19,
       "typeArguments": [
         "22365060ee120a80dee59e3cd87d14f2407c05cb88b1a4975a8f015d8a8d7070"
       ]
@@ -148,7 +156,7 @@ const abi = {
     {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
       "concreteTypeId": "e1ef35033ea9d2956f17c3292dea4a46ce7d61fdf37bbebe03b7b965073f43b5",
-      "metadataTypeId": 19
+      "metadataTypeId": 20
     },
     {
       "type": "u32",
@@ -166,11 +174,11 @@ const abi = {
       "components": [
         {
           "name": "__tuple_element",
-          "typeId": 20
+          "typeId": 21
         },
         {
           "name": "__tuple_element",
-          "typeId": 20
+          "typeId": 21
         }
       ]
     },
@@ -188,7 +196,7 @@ const abi = {
         },
         {
           "name": "__tuple_element",
-          "typeId": 20
+          "typeId": 21
         }
       ]
     },
@@ -332,35 +340,52 @@ const abi = {
       "components": [
         {
           "name": "Address",
-          "typeId": 14
+          "typeId": 15
         },
         {
           "name": "ContractId",
-          "typeId": 16
+          "typeId": 17
         }
+      ]
+    },
+    {
+      "type": "enum std::option::Option",
+      "metadataTypeId": 8,
+      "components": [
+        {
+          "name": "None",
+          "typeId": "2e38e77b22c314a449e91fafed92a43826ac6aa403ae6a8acb6cf58239fbaf5d"
+        },
+        {
+          "name": "Some",
+          "typeId": 13
+        }
+      ],
+      "typeParameters": [
+        13
       ]
     },
     {
       "type": "enum std::result::Result",
-      "metadataTypeId": 8,
+      "metadataTypeId": 9,
       "components": [
         {
           "name": "Ok",
-          "typeId": 12
+          "typeId": 13
         },
         {
           "name": "Err",
-          "typeId": 11
+          "typeId": 12
         }
       ],
       "typeParameters": [
-        12,
-        11
+        13,
+        12
       ]
     },
     {
       "type": "enum sway_libs::ownership::errors::InitializationError",
-      "metadataTypeId": 9,
+      "metadataTypeId": 10,
       "components": [
         {
           "name": "CannotReinitialized",
@@ -370,7 +395,7 @@ const abi = {
     },
     {
       "type": "enum sway_libs::pausable::errors::PauseError",
-      "metadataTypeId": 10,
+      "metadataTypeId": 11,
       "components": [
         {
           "name": "Paused",
@@ -384,28 +409,18 @@ const abi = {
     },
     {
       "type": "generic E",
-      "metadataTypeId": 11
-    },
-    {
-      "type": "generic T",
       "metadataTypeId": 12
     },
     {
-      "type": "raw untyped ptr",
+      "type": "generic T",
       "metadataTypeId": 13
     },
     {
-      "type": "struct std::address::Address",
-      "metadataTypeId": 14,
-      "components": [
-        {
-          "name": "bits",
-          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
-        }
-      ]
+      "type": "raw untyped ptr",
+      "metadataTypeId": 14
     },
     {
-      "type": "struct std::asset_id::AssetId",
+      "type": "struct std::address::Address",
       "metadataTypeId": 15,
       "components": [
         {
@@ -415,7 +430,7 @@ const abi = {
       ]
     },
     {
-      "type": "struct std::contract_id::ContractId",
+      "type": "struct std::asset_id::AssetId",
       "metadataTypeId": 16,
       "components": [
         {
@@ -425,48 +440,58 @@ const abi = {
       ]
     },
     {
-      "type": "struct std::vec::RawVec",
+      "type": "struct std::contract_id::ContractId",
       "metadataTypeId": 17,
       "components": [
         {
+          "name": "bits",
+          "typeId": "7c5ee1cecf5f8eacd1284feb5f0bf2bdea533a51e2f0c9aabe9236d335989f3b"
+        }
+      ]
+    },
+    {
+      "type": "struct std::vec::RawVec",
+      "metadataTypeId": 18,
+      "components": [
+        {
           "name": "ptr",
-          "typeId": 13
+          "typeId": 14
         },
         {
           "name": "cap",
-          "typeId": 20
+          "typeId": 21
         }
       ],
       "typeParameters": [
-        12
+        13
       ]
     },
     {
       "type": "struct std::vec::Vec",
-      "metadataTypeId": 18,
+      "metadataTypeId": 19,
       "components": [
         {
           "name": "buf",
-          "typeId": 17,
+          "typeId": 18,
           "typeArguments": [
             {
               "name": "",
-              "typeId": 12
+              "typeId": 13
             }
           ]
         },
         {
           "name": "len",
-          "typeId": 20
+          "typeId": 21
         }
       ],
       "typeParameters": [
-        12
+        13
       ]
     },
     {
       "type": "struct sway_libs::ownership::events::OwnershipSet",
-      "metadataTypeId": 19,
+      "metadataTypeId": 20,
       "components": [
         {
           "name": "new_owner",
@@ -476,7 +501,7 @@ const abi = {
     },
     {
       "type": "u64",
-      "metadataTypeId": 20
+      "metadataTypeId": 21
     }
   ],
   "functions": [
@@ -683,6 +708,19 @@ const abi = {
     },
     {
       "inputs": [],
+      "name": "last_outcome",
+      "output": "042fcf127f8b7962a33a0092a79e1e5868c73a96db9e27b15fb3644b86f6d75a",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
       "name": "nb_block_before_maturity",
       "output": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
       "attributes": [
@@ -776,17 +814,17 @@ const abi = {
     {
       "name": "LIQUIDITY_POOL",
       "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
-      "offset": 54552
+      "offset": 56728
     },
     {
       "name": "BASE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 54520
+      "offset": 56696
     },
     {
       "name": "MATURITY",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 54584
+      "offset": 56760
     }
   ]
 };
@@ -794,6 +832,10 @@ const abi = {
 const storageSlots: StorageSlot[] = [
   {
     "key": "0fa06f633b6485a29542ef3fac43e33629419894778ed1c10493483d6cbf3979",
+    "value": "0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  {
+    "key": "250a12d6d436f057372ee842af6143ed4d87c7e6efc462f27cc57ccb9ff459cf",
     "value": "0000000000000000000000000000000000000000000000000000000000000000"
   },
   {
@@ -817,6 +859,7 @@ export class GameInterface extends Interface {
     get_all_bets: FunctionFragment;
     initialize: FunctionFragment;
     is_mature: FunctionFragment;
+    last_outcome: FunctionFragment;
     nb_block_before_maturity: FunctionFragment;
     place_bet: FunctionFragment;
     request_random: FunctionFragment;
@@ -838,6 +881,7 @@ export class Game extends Contract {
     get_all_bets: InvokeFunction<[], Vec<[IdentityOutput, OutcomeOutput, BN]>>;
     initialize: InvokeFunction<[new_owner: IdentityInput], void>;
     is_mature: InvokeFunction<[], boolean>;
+    last_outcome: InvokeFunction<[], Option<OutcomeOutput>>;
     nb_block_before_maturity: InvokeFunction<[], number>;
     place_bet: InvokeFunction<[outcome: OutcomeInput], Result<void, LiquidityPoolErrorOutput>>;
     request_random: InvokeFunction<[seed: string], void>;

@@ -3,7 +3,7 @@ import { getRandomB256, Provider, Wallet } from "fuels";
 import { Game } from "./types/contracts/Game";
 
 const GAME_CONTRACT_ID =
-  "0x07162bcf2b077e471626cb4d93e2ad50ab1bdf3776973c9594a8fc3ffb8104d4";
+  "0xec792fb20fe52ba8181ff5929e03fa97e1070ac70946332439bb46032859e14f";
 dotenv.config();
 
 const provider = await Provider.create(
@@ -20,14 +20,16 @@ while (true) {
     continue;
   }
   console.log("Game is mature");
+
   try {
-    const { waitForResult } = await game.functions
+    const requestRandomResponse = await game.functions
       .request_random(getRandomB256())
       .callParams({ forward: [300, wallet.provider.getBaseAssetId()] })
       .call();
-    await waitForResult();
-    console.log("Random number requested");
 
+    await requestRandomResponse.waitForResult();
+    console.log("Random number requested");
+  } catch (e: unknown) {
     while (true) {
       await new Promise((resolve) => setTimeout(resolve, 5000));
       try {
@@ -40,7 +42,5 @@ while (true) {
       }
       break;
     }
-  } catch (e: unknown) {
-    console.error(e);
   }
 }

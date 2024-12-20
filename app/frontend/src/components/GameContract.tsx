@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useWallet } from "@fuels/react";
+import Image from "next/image";
+import useSound from "use-sound";
 
 import {
   Game,
@@ -11,8 +13,11 @@ import Button from "./Button";
 import { gameContractAddress } from "../../../lib";
 import { Account, BN } from "fuels";
 import { usePlaceBet } from "@/hooks/usePlaceBet";
-// import { useRequestRandom } from "@/hooks/useRequestRandom";
-// import { useProcessOutcomes } from "@/hooks/useProcessOutcomes";
+import { useRequestRandom } from "@/hooks/useRequestRandom";
+import { useProcessOutcomes } from "@/hooks/useProcessOutcomes";
+import { useNumberOfBlocksBeforeMaturity } from "@/hooks/useNumberOfBlocksBeforeMaturity";
+import horse0 from "../../public/horse0.jpeg";
+import { useLastOutcome } from "@/hooks/useLastOutcome";
 
 type Bet = {
   user: string;
@@ -25,10 +30,33 @@ export default function GameContract() {
   const [betOutcome, setBetOutcome] = useState<OutcomeInput>(OutcomeInput.BLUE);
   const [betAmount, setBetAmount] = useState<number>();
   const placeBet = usePlaceBet();
-  // const requestRandom = useRequestRandom();
-  // const processOutcomes = useProcessOutcomes();
-
+  const requestRandom = useRequestRandom();
+  const processOutcomes = useProcessOutcomes();
+  const {
+    data: numberOfBlocksBeforeMaturity,
+    isFetching,
+    refetch: refetchNumberOfBlocksBeforeMaturity,
+  } = useNumberOfBlocksBeforeMaturity();
   const { wallet } = useWallet();
+  const {
+    data: lastOutCome,
+    isPending: isFetchingLastOutcome,
+    refetch: refetchLastOutcome,
+  } = useLastOutcome();
+  const [playHorseSound] = useSound("/horseSound.wav");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!isFetching) {
+        refetchNumberOfBlocksBeforeMaturity();
+      }
+      if (!isFetchingLastOutcome) {
+        refetchLastOutcome();
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [refetchNumberOfBlocksBeforeMaturity]);
 
   useEffect(() => {
     const updateDeposits = async (wallet: Account) => {
@@ -65,6 +93,12 @@ export default function GameContract() {
     }
   }, [wallet]);
 
+  useEffect(() => {
+    if (numberOfBlocksBeforeMaturity === 0) {
+      playHorseSound();
+    }
+  }, [numberOfBlocksBeforeMaturity]);
+
   return (
     <>
       <div>
@@ -78,31 +112,34 @@ export default function GameContract() {
             <span>{bet.outcome}</span>
           </div>
         ))}
-        <select
-          className="text-black"
-          onChange={(e) => {
-            switch (e.target.value) {
-              case "1":
-                setBetOutcome(OutcomeInput.BLUE);
-                break;
-              case "2":
-                setBetOutcome(OutcomeInput.GREEN);
-                break;
-              case "3":
-                setBetOutcome(OutcomeInput.YELLOW);
-                break;
-              case "4":
-                setBetOutcome(OutcomeInput.RED);
-                break;
-            }
-          }}
-        >
-          <option value="1">Blue</option>
-          <option value="2">Green</option>
-          <option value="3">Yellow</option>
-          <option value="4">Red</option>
-        </select>
-        <div className="flex items-center justify-between text-base">
+        <div className="text-xl">
+          {numberOfBlocksBeforeMaturity ?? "Loading..."} blocks remaining to bet
+        </div>
+        <div className="flex items-center justify-around text-base">
+          <select
+            className="text-black"
+            onChange={(e) => {
+              switch (e.target.value) {
+                case "1":
+                  setBetOutcome(OutcomeInput.BLUE);
+                  break;
+                case "2":
+                  setBetOutcome(OutcomeInput.GREEN);
+                  break;
+                case "3":
+                  setBetOutcome(OutcomeInput.YELLOW);
+                  break;
+                case "4":
+                  setBetOutcome(OutcomeInput.RED);
+                  break;
+              }
+            }}
+          >
+            <option value="1">Blue</option>
+            <option value="2">Green</option>
+            <option value="3">Yellow</option>
+            <option value="4">Red</option>
+          </select>
           <input
             type="text"
             value={betAmount}
@@ -116,6 +153,7 @@ export default function GameContract() {
             onClick={() => {
               if (betAmount) {
                 placeBet.mutate({ betAmount, betOutcome });
+                setBetAmount(undefined);
               }
             }}
             className="w-1/3"
@@ -124,9 +162,13 @@ export default function GameContract() {
             Place Bet
           </Button>
         </div>
+        <div>Last Winner: {isFetchingLastOutcome ? "Loading last outcome..." : lastOutCome ?? "None"}</div>
+        {numberOfBlocksBeforeMaturity === 0 && (
+          <Image src={horse0} width={500} height={500} alt="not found" />
+        )}
       </div>
-      {/* <div>
-        <Button
+      <div>
+        {/* <Button
           onClick={() => requestRandom.mutate()}
           disabled={requestRandom.isPending}
         >
@@ -137,8 +179,8 @@ export default function GameContract() {
           disabled={processOutcomes.isPending}
         >
           Process Outcomes
-        </Button>
-      </div> */}
+        </Button> */}
+      </div>
       <div></div>
     </>
   );

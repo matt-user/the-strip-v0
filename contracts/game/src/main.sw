@@ -124,12 +124,17 @@ abi Game {
     // Get all the bets
     #[storage(read)]
     fn get_all_bets() -> Vec<(Identity, Outcome, u64)>;
+
+    // Get last game outomce
+    #[storage(read)]
+    fn last_outcome() -> Option<Outcome>;
 }
 
 storage {
     bets: StorageVec<(Identity, Outcome, u64)> = StorageVec {},
     start_block_height: u32 = 0,
     request_id: Option<u64> = None,
+    last_outcome: Option<Outcome> = None,
 }
 
 impl Game for Contract {
@@ -242,6 +247,8 @@ impl Game for Contract {
             3 => Outcome::RED,
             _ => revert(4),
         };
+        storage.last_outcome.write(Some(outcome));
+
         let mut money_left = 0;
         let mut i = 0;
         while i < storage.bets.len() {
@@ -278,5 +285,10 @@ impl Game for Contract {
             i += 1;
         }
         return bets;
+    }
+
+    #[storage(read)]
+    fn last_outcome() -> Option<Outcome> {
+        storage.last_outcome.read()
     }
 }
