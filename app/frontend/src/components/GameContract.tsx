@@ -3,12 +3,7 @@ import { useWallet } from "@fuels/react";
 import Image from "next/image";
 import useSound from "use-sound";
 
-import {
-  Game,
-  IdentityOutput,
-  OutcomeInput,
-  OutcomeOutput,
-} from "@/types/contracts/Game";
+import { Game, IdentityOutput, OutcomeInput, OutcomeOutput } from "@/types/contracts/Game";
 import Button from "./Button";
 import { gameContractAddress } from "../../../lib";
 import { Account, BN } from "fuels";
@@ -38,11 +33,7 @@ export default function GameContract() {
     refetch: refetchNumberOfBlocksBeforeMaturity,
   } = useNumberOfBlocksBeforeMaturity();
   const { wallet } = useWallet();
-  const {
-    data: lastOutCome,
-    isPending: isFetchingLastOutcome,
-    refetch: refetchLastOutcome,
-  } = useLastOutcome();
+  const { data: lastOutCome, isPending: isFetchingLastOutcome, refetch: refetchLastOutcome } = useLastOutcome();
   const [playHorseSound] = useSound("/horseSound.wav");
 
   useEffect(() => {
@@ -102,9 +93,7 @@ export default function GameContract() {
   return (
     <>
       <div>
-        <h3 className="mb-1 text-sm font-bold text-white">
-          Current bets are TODO
-        </h3>
+        <h3 className="mb-1 text-sm font-bold text-white">Current bets are TODO</h3>
         {bets.map((bet) => (
           <div key={bet.user} className="flex justify-around">
             <span>{bet.user}</span>
@@ -112,9 +101,7 @@ export default function GameContract() {
             <span>{bet.outcome}</span>
           </div>
         ))}
-        <div className="text-xl">
-          {numberOfBlocksBeforeMaturity ?? "Loading..."} blocks remaining to bet
-        </div>
+        <div className="text-xl">{numberOfBlocksBeforeMaturity ?? "Loading..."} blocks remaining to bet</div>
         <div className="flex items-center justify-around text-base">
           <select
             className="text-black"
@@ -162,10 +149,8 @@ export default function GameContract() {
             Place Bet
           </Button>
         </div>
-        <div>Last Winner: {isFetchingLastOutcome ? "Loading last outcome..." : lastOutCome ?? "None"}</div>
-        {numberOfBlocksBeforeMaturity === 0 && (
-          <Image src={horse0} width={500} height={500} alt="not found" />
-        )}
+        <div>Last Winner: {isFetchingLastOutcome ? "Loading last outcome..." : (lastOutCome ?? "None")}</div>
+        {numberOfBlocksBeforeMaturity === 0 && <Image src={horse0} width={500} height={500} alt="not found" />}
       </div>
       <div>
         {/* <Button

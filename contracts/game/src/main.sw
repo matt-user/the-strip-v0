@@ -33,9 +33,8 @@ const VRF_ADDR = 0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc48
 
 configurable {
     LIQUIDITY_POOL: ContractId = ContractId::from(0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc4828d),
-    // TODO: change name to DEPOSIT_ASSET_ID
     BASE_ASSET: AssetId = AssetId::zero(),
-    MATURITY: u32 = 30,
+    MATURITY: u32 = 100,
 }
 
 impl SRC5 for Contract {
@@ -184,7 +183,8 @@ impl Game for Contract {
     #[storage(read)]
     fn nb_block_before_maturity() -> u32 {
         let current_height = height();
-        if current_height > storage.start_block_height.read() + MATURITY {
+        if current_height > storage.start_block_height.read() + MATURITY
+        {
             return 0;
         }
         return storage.start_block_height.read() + MATURITY - current_height;
@@ -268,7 +268,10 @@ impl Game for Contract {
         }();
         match res {
             Ok(_) => {},
-            Err(err) => {log(err); return  Err(err);},
+            Err(err) => {
+                log(err);
+                return Err(err);
+            },
         };
         storage.bets.clear();
         storage.request_id.write(None);

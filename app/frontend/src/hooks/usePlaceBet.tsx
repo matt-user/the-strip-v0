@@ -12,23 +12,34 @@ export const usePlaceBet = () => {
   const { errorNotification, successNotification } = useNotification();
 
   const mutation = useMutation({
-    mutationFn: async ({
-      betOutcome,
-      betAmount,
-    }: {
-      betOutcome: OutcomeInput;
-      betAmount: number;
-    }) => {
+    mutationFn: async ({ betOutcome, betAmount }: { betOutcome: OutcomeInput; betAmount: number }) => {
       if (!wallet) {
         throw new Error("Wallet must be connected to place bet.");
       }
 
       const game = new Game(gameContractAddress, wallet);
+
+      const { maxFee, gasUsed } = await game.functions
+        .place_bet(betOutcome)
+        .callParams({ forward: [betAmount * 10 ** 9, usdsAssetId] })
+        .getTransactionCost();
+
+      const betTransactionRequest = await game.functions
+        .place_bet(betOutcome)
+        .callParams({ forward: [betAmount * 10 ** 9, usdsAssetId] })
+        .getTransactionRequest();
+
+      betTransactionRequest.gasLimit = gasUsed;
+      betTransactionRequest.maxFee = maxFee;
+
       const placeBetResponse = await game.functions
         .place_bet(betOutcome)
         .callParams({ forward: [betAmount * 10 ** 9, usdsAssetId] })
         .call();
-      await placeBetResponse.waitForResult();
+
+      const tx = await placeBetResponse.waitForResult();
+
+      console.log("tx", tx);
     },
     onError: (error) => {
       console.error(error.message);
