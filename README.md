@@ -13,4 +13,11 @@ cd app && pnpm install
 ```
 
 ```bash
+pnpm cp:env
+```
+
+And then set `NEXT_PUBLIC_OWNER_ADDRESS` to your wallet address.
+
+```bash
 cd app/frontend && pnpm dev
+```

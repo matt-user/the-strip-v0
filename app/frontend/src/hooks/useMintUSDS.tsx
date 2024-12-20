@@ -1,15 +1,16 @@
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "react-toastify";
 import { useWallet } from "@fuels/react";
 
 import { usdsContractAddress } from "../../../lib";
 import { bn } from "fuels";
 import { IdentityInput, Usds } from "@/types/contracts/Usds";
+import { useNotification } from "./useNotification";
 
 const MINT_AMOUNT = 100_000_000_000;
 
 export const useMintUSDS = () => {
   const { wallet } = useWallet();
+  const { errorNotification, successNotification } = useNotification();
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -17,7 +18,6 @@ export const useMintUSDS = () => {
         throw new Error("Wallet must be connected to mint USDS");
       }
 
-      console.log(`usdsContractAddress`, usdsContractAddress);
       const usdsContract = new Usds(usdsContractAddress, wallet);
       const walletIdentity: IdentityInput = {
         Address: { bits: wallet.address.toString() },
@@ -33,11 +33,11 @@ export const useMintUSDS = () => {
     
       await response.waitForResult();
     },
-    onError: () => {
-      toast.error("Error minting USDS");
+    onError: (error) => {
+      errorNotification(error.message);
     },
     onSuccess: () => {
-      toast.success("Successfully minted USDS");
+      successNotification("Successfully minted USDS");
     },
   });
 
