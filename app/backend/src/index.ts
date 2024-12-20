@@ -22,15 +22,22 @@ while (true) {
   console.log("Game is mature");
   try {
     const { waitForResult } = await game.functions
-    .request_random(getRandomB256())
-    .callParams({ forward: [300, wallet.provider.getBaseAssetId()] })
-    .call();
-  await waitForResult();
-  console.log("Random number requested");
-  } catch (e: unknown) {
+      .request_random(getRandomB256())
+      .callParams({ forward: [300, wallet.provider.getBaseAssetId()] })
+      .call();
+    await waitForResult();
+    console.log("Random number requested");
+  } catch (e: unknown) {}
+  while (true) {
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    try {
+      const randomNumber = await game.functions.fulfill_random().call();
+      await randomNumber.waitForResult();
+      console.log("Game fully resolved");
+    } catch (e) {
+      console.log("Retry game resolution");
+      continue;
+    }
+    break;
   }
-  await new Promise((resolve) => setTimeout(resolve, 4000));
-  const randomNumber = await game.functions.fulfill_random().call();
-  await randomNumber.waitForResult();
-  console.log("Game fully resolved");
 }
