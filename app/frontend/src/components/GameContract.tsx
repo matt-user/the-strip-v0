@@ -11,8 +11,8 @@ import Button from "./Button";
 import { gameContractAddress } from "../../../lib";
 import { Account, BN } from "fuels";
 import { usePlaceBet } from "@/hooks/usePlaceBet";
-import { useRequestRandom } from "@/hooks/useRequestRandom";
-import { useProcessOutcomes } from "@/hooks/useProcessOutcomes";
+// import { useRequestRandom } from "@/hooks/useRequestRandom";
+// import { useProcessOutcomes } from "@/hooks/useProcessOutcomes";
 
 type Bet = {
   user: string;
@@ -25,8 +25,8 @@ export default function GameContract() {
   const [betOutcome, setBetOutcome] = useState<OutcomeInput>(OutcomeInput.BLUE);
   const [betAmount, setBetAmount] = useState<number>();
   const placeBet = usePlaceBet();
-  const requestRandom = useRequestRandom();
-  const processOutcomes = useProcessOutcomes();
+  // const requestRandom = useRequestRandom();
+  // const processOutcomes = useProcessOutcomes();
 
   const { wallet } = useWallet();
 
@@ -72,7 +72,7 @@ export default function GameContract() {
           Current bets are TODO
         </h3>
         {bets.map((bet) => (
-          <div key={bet.user}>
+          <div key={bet.user} className="flex justify-around">
             <span>{bet.user}</span>
             <span>{(bet.amount.toNumber() / 10 ** 9).toFixed(3)}</span>
             <span>{bet.outcome}</span>
@@ -125,7 +125,7 @@ export default function GameContract() {
           </Button>
         </div>
       </div>
-      <div>
+      {/* <div>
         <Button
           onClick={() => requestRandom.mutate()}
           disabled={requestRandom.isPending}
@@ -138,7 +138,7 @@ export default function GameContract() {
         >
           Process Outcomes
         </Button>
-      </div>
+      </div> */}
       <div></div>
     </>
   );

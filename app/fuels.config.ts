@@ -135,7 +135,6 @@ export default createConfig({
     await initializeResponse.waitForResult();
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-
     const depositAssetId = getMintedAssetId(
       usdsContract.contractId,
       "0x0000000000000000000000000000000000000000000000000000000000000000"
