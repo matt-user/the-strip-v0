@@ -108,13 +108,16 @@ export default createConfig({
     const mintResponse = await usds.functions
       .mint(
         {
-          Address: { bits: deployerWallet.address.toString() },
+          Address: { bits: deployerWallet.address.toB256() },
         },
         "0x0000000000000000000000000000000000000000000000000000000000000000",
         mintAmount
       )
       .call();
     await mintResponse.waitForResult();
+
+      // Sleep 1 second
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const liquidityPool = new LiquidityPool(
       liquidityPoolContract.contractId,
@@ -124,12 +127,14 @@ export default createConfig({
     const initializeResponse = await liquidityPool.functions
       .initialize(
         {
-          Address: { bits: deployerWallet.address.toString() },
+          Address: { bits: deployerWallet.address.toB256() },
         },
         { bits: gameContract.contractId }
       )
       .call();
     await initializeResponse.waitForResult();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
 
     const depositAssetId = getMintedAssetId(
       usdsContract.contractId,
@@ -140,24 +145,23 @@ export default createConfig({
       .callParams({ forward: [mintAmount, depositAssetId] })
       .call();
     await depositResponse.waitForResult();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const startVaultResponse = await liquidityPool.functions
       .start_vault()
       .call();
     await startVaultResponse.waitForResult();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // TODO: implement prod deployment
-    const newOwnerPublicKey = process.env.NEXT_PUBLIC_OWNER_ADDRESS;
-    if (newOwnerPublicKey) {
-      const newOwner: IdentityInput = { Address: { bits: newOwnerPublicKey } };
-      const setNewOwnerResponse = await liquidityPool.functions
-        .transfer_ownership(newOwner)
-        .call();
-      await setNewOwnerResponse.waitForResult();
+    const game = new Game(gameContract.contractId, deployerWallet);
+    const gameResponse = await game.functions.initialize(
+      {
+        Address: { bits: deployerWallet.address.toB256() },
+      }
+    )
+    .call();
+    await gameResponse.waitForResult();
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      const game = new Game(gameContract.contractId, deployerWallet);
-      const gameResponse = await game.functions.initialize(newOwner).call();
-      await gameResponse.waitForResult();
-    }
   },
 });
