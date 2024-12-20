@@ -3,21 +3,17 @@ import { useWallet } from "@fuels/react";
 import Image from "next/image";
 import useSound from "use-sound";
 
-import {
-  Game,
-  IdentityOutput,
-  OutcomeInput,
-  OutcomeOutput,
-} from "@/types/contracts/Game";
+import { Game, IdentityOutput, OutcomeInput, OutcomeOutput } from "@/types/contracts/Game";
 import Button from "./Button";
-import { gameContractAddress } from "../../../lib";
+import { gameContractAddress, liquidityPoolContractAddress } from "../../../lib";
 import { Account, BN } from "fuels";
 import { usePlaceBet } from "@/hooks/usePlaceBet";
-import { useRequestRandom } from "@/hooks/useRequestRandom";
-import { useProcessOutcomes } from "@/hooks/useProcessOutcomes";
+
 import { useNumberOfBlocksBeforeMaturity } from "@/hooks/useNumberOfBlocksBeforeMaturity";
 import horse0 from "../../public/horse0.jpeg";
 import { useLastOutcome } from "@/hooks/useLastOutcome";
+import { LiquidityPool } from "../types/contracts/LiquidityPool";
+import { useWithdrawals } from "../hooks/useWithdrawLiquidity";
 
 type Bet = {
   user: string;
@@ -27,23 +23,27 @@ type Bet = {
 
 export default function GameContract() {
   const [bets, setBets] = useState<Bet[]>([]);
+  const [canWithdraw, setCanWithdraw] = useState<boolean>(false);
   const [betOutcome, setBetOutcome] = useState<OutcomeInput>(OutcomeInput.BLUE);
   const [betAmount, setBetAmount] = useState<number>();
   const placeBet = usePlaceBet();
-  const requestRandom = useRequestRandom();
-  const processOutcomes = useProcessOutcomes();
+  const withdrawals = useWithdrawals();
+
   const {
     data: numberOfBlocksBeforeMaturity,
     isFetching,
     refetch: refetchNumberOfBlocksBeforeMaturity,
   } = useNumberOfBlocksBeforeMaturity();
   const { wallet } = useWallet();
-  const {
-    data: lastOutCome,
-    isPending: isFetchingLastOutcome,
-    refetch: refetchLastOutcome,
-  } = useLastOutcome();
+  const { data: lastOutCome, isPending: isFetchingLastOutcome, refetch: refetchLastOutcome } = useLastOutcome();
   const [playHorseSound] = useSound("/horseSound.wav");
+
+  const checkCanWithdraw = async () => {
+    if (!wallet) return;
+    const liquidityPool = new LiquidityPool(liquidityPoolContractAddress, wallet);
+    const res = await liquidityPool.functions.can_withdraw().dryRun();
+    setCanWithdraw(res.value);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -96,15 +96,14 @@ export default function GameContract() {
   useEffect(() => {
     if (numberOfBlocksBeforeMaturity === 0) {
       playHorseSound();
+      checkCanWithdraw();
     }
   }, [numberOfBlocksBeforeMaturity]);
 
   return (
     <>
       <div>
-        <h3 className="mb-1 text-sm font-bold text-white">
-          Current bets are TODO
-        </h3>
+        <h3 className="mb-1 text-sm font-bold text-white">Current bets are</h3>
         {bets.map((bet) => (
           <div key={bet.user} className="flex justify-around">
             <span>{bet.user}</span>
@@ -112,9 +111,12 @@ export default function GameContract() {
             <span>{bet.outcome}</span>
           </div>
         ))}
-        <div className="text-xl">
-          {numberOfBlocksBeforeMaturity ?? "Loading..."} blocks remaining to bet
-        </div>
+        {canWithdraw && (
+          <div>
+            <Button onClick={() => withdrawals.mutate()}>Withdraw</Button>
+          </div>
+        )}
+        <div className="text-xl">{numberOfBlocksBeforeMaturity ?? "Loading..."} blocks remaining to bet</div>
         <div className="flex items-center justify-around text-base">
           <select
             className="text-black"
@@ -162,10 +164,8 @@ export default function GameContract() {
             Place Bet
           </Button>
         </div>
-        <div>Last Winner: {isFetchingLastOutcome ? "Loading last outcome..." : lastOutCome ?? "None"}</div>
-        {numberOfBlocksBeforeMaturity === 0 && (
-          <Image src={horse0} width={500} height={500} alt="not found" />
-        )}
+        <div>Last Winner: {isFetchingLastOutcome ? "Loading last outcome..." : (lastOutCome ?? "None")}</div>
+        {numberOfBlocksBeforeMaturity === 0 && <Image src={horse0} width={500} height={500} alt="not found" />}
       </div>
       <div>
         {/* <Button

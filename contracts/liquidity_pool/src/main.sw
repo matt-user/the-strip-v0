@@ -14,7 +14,7 @@ use sway_libs::{
         _owner,
         initialize_ownership,
         only_owner,
-        transfer_ownership
+        transfer_ownership,
     },
     pausable::{
         _is_paused,
@@ -162,6 +162,9 @@ abi LiquidityPool {
 
     #[storage(read, write)]
     fn signal_withdrawal(amount: u64);
+
+    #[storage(read)]
+    fn can_withdraw() -> bool;
 
     #[storage(read, write)]
     fn withdrawal();
@@ -427,12 +430,20 @@ impl LiquidityPool for Contract {
             .insert(sender, signalled_withdrawal + amount);
     }
 
+    #[storage(read)]
+    fn can_withdraw() -> bool {
+        let sender = msg_sender().unwrap();
+        let signalled_withdrawal = storage.signaled_withdraws.get(sender).read();
+        signalled_withdrawal > 0
+    }
+
     #[storage(read, write)]
     fn request_collateral(amount: u64) -> Result<(), LiquidityPoolError> {
         require_not_paused();
         let sender = msg_sender().unwrap();
 
-        if sender != Identity::ContractId(storage.game_contract_id.read()) {
+        if sender != Identity::ContractId(storage.game_contract_id.read())
+        {
             return Err(LiquidityPoolError::CannotRequestCollateral);
         }
 
@@ -447,7 +458,6 @@ impl LiquidityPool for Contract {
             .write(available_collateral - amount);
         transfer(sender, DEPOSIT_ASSET_ID, amount);
         // UB: sum of user's collaterals != available_collateral
-
         Ok(())
     }
 
@@ -482,7 +492,7 @@ impl LiquidityPool for Contract {
 
     // Game Contract Sends unsused collateral.
     #[storage(read, write)]
-    fn send_remaining_collateral() -> Result<(), LiquidityPoolError>{
+    fn send_remaining_collateral() -> Result<(), LiquidityPoolError> {
         require_not_paused();
 
         let asset_id = msg_asset_id();

@@ -6,7 +6,7 @@
 
 /*
   Fuels version: 0.97.2
-  Forc version: 0.66.5
+  Forc version: 0.66.2
   Fuel-Core version: 0.40.0
 */
 
@@ -536,6 +536,19 @@ const abi = {
           "arguments": [
             "read",
             "write"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
+      "name": "can_withdraw",
+      "output": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
           ]
         }
       ]
@@ -1427,7 +1440,7 @@ const abi = {
     {
       "name": "DEPOSIT_ASSET_ID",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 51744
+      "offset": 50696
     }
   ]
 };
@@ -1471,6 +1484,7 @@ export class LiquidityPoolInterface extends Interface {
     unpause: FunctionFragment;
     available_collateral: FunctionFragment;
     can_close_current_round: FunctionFragment;
+    can_withdraw: FunctionFragment;
     close_round: FunctionFragment;
     current_round_info: FunctionFragment;
     deposit: FunctionFragment;
@@ -1499,6 +1513,7 @@ export class LiquidityPool extends Contract {
     unpause: InvokeFunction<[], void>;
     available_collateral: InvokeFunction<[], BN>;
     can_close_current_round: InvokeFunction<[], boolean>;
+    can_withdraw: InvokeFunction<[], boolean>;
     close_round: InvokeFunction<[], void>;
     current_round_info: InvokeFunction<[], RoundInfoOutput>;
     deposit: InvokeFunction<[], void>;
