@@ -163,6 +163,9 @@ abi LiquidityPool {
     #[storage(read, write)]
     fn signal_withdrawal(amount: u64);
 
+    #[storage(read)]
+    fn can_withdraw() -> bool;
+
     #[storage(read, write)]
     fn withdrawal();
 
@@ -425,6 +428,13 @@ impl LiquidityPool for Contract {
         storage
             .signaled_withdraws
             .insert(sender, signalled_withdrawal + amount);
+    }
+
+    #[storage(read)]
+    fn can_withdraw() -> bool {
+        let sender = msg_sender().unwrap();
+        let signalled_withdrawal = storage.signaled_withdraws.get(sender).read();
+        signalled_withdrawal > 0
     }
 
     #[storage(read, write)]

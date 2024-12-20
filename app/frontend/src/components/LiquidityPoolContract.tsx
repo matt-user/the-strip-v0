@@ -5,14 +5,14 @@ import { LiquidityPool } from "@/types/contracts/LiquidityPool";
 import { liquidityPoolContractAddress } from "../../../lib";
 import { Account } from "fuels";
 import { useAddLiquidity } from "@/hooks/useAddLiquidity";
-import { useWithdrawLiquidity } from "../hooks/useWithdrawLiquidity";
+import { useWithdrawLiquidity } from "../hooks/useSignalWithdrawalForLiquidity";
 
 export default function LiquidityPoolContract() {
   const [totalDeposits, setTotalDeposits] = useState<number>(0);
   const [totalCollateral, setTotalCollateral] = useState<number>(0);
   const [roundCollateral, setRoundCollateral] = useState<number>(0);
   const [liquidityToAdd, setLiquidityToAdd] = useState<number>();
-  const [liquidityToWithdraw, setLiquidityToWithdraw] = useState<number>();
+  const [liquidityToWithdraw, setLiquidityToWithdraw] = useState<number>(0);
   const addLiquidity = useAddLiquidity();
   const withdrawLiquidity = useWithdrawLiquidity();
 
@@ -87,7 +87,7 @@ export default function LiquidityPoolContract() {
                     Add Liquidity
                   </button>
                 </td>
-                {roundCollateral > 0 && (
+                {totalDeposits > 0 && (
                   <td>
                     <input
                       type="text"

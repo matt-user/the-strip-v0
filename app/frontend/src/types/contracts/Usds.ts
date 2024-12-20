@@ -6,7 +6,7 @@
 
 /*
   Fuels version: 0.97.2
-  Forc version: 0.66.5
+  Forc version: 0.66.2
   Fuel-Core version: 0.40.0
 */
 
@@ -597,17 +597,17 @@ const abi = {
     {
       "name": "DECIMALS",
       "concreteTypeId": "c89951a24c6ca28c13fd1cfdc646b2b656d69e61a92b91023be7eb58eb914b6b",
-      "offset": 29560
+      "offset": 28944
     },
     {
       "name": "NAME",
       "concreteTypeId": "fd59cdd2c531ab3564f4fcc13eb876860d4d7cd4d12aa1f042a5aeceacde951f",
-      "offset": 29568
+      "offset": 28952
     },
     {
       "name": "SYMBOL",
       "concreteTypeId": "94f0fa95c830be5e4f711963e83259fe7e8bc723278ab6ec34449e791a99b53a",
-      "offset": 29576
+      "offset": 28960
     }
   ]
 };
