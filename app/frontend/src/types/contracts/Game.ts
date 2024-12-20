@@ -534,6 +534,19 @@ const abi = {
     },
     {
       "inputs": [],
+      "name": "deposit_authorized",
+      "output": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
       "name": "fulfill_random",
       "output": "62c98b6959a49888acb319a34de58cc581918c47e31e3fe1d933f1aefb718188",
       "attributes": [
@@ -656,6 +669,32 @@ const abi = {
       ]
     },
     {
+      "inputs": [],
+      "name": "is_mature",
+      "output": "b760f44fa5965c2474a3b471467a22c43185152129295af588b022ae50b50903",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
+      "inputs": [],
+      "name": "nb_block_before_maturity",
+      "output": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
+      "attributes": [
+        {
+          "name": "storage",
+          "arguments": [
+            "read"
+          ]
+        }
+      ]
+    },
+    {
       "inputs": [
         {
           "name": "outcome",
@@ -737,17 +776,17 @@ const abi = {
     {
       "name": "LIQUIDITY_POOL",
       "concreteTypeId": "29c10735d33b5159f0c71ee1dbd17b36a3e69e41f00fab0d42e1bd9f428d8a54",
-      "offset": 52256
+      "offset": 54552
     },
     {
       "name": "BASE_ASSET",
       "concreteTypeId": "c0710b6731b1dd59799cf6bef33eee3b3b04a2e40e80a0724090215bbf2ca974",
-      "offset": 52224
+      "offset": 54520
     },
     {
       "name": "MATURITY",
       "concreteTypeId": "d7649d428b9ff33d188ecbf38a7e4d8fd167fa01b2e10fe9a8f9308e52f1d7cc",
-      "offset": 52288
+      "offset": 54584
     }
   ]
 };
@@ -773,9 +812,12 @@ export class GameInterface extends Interface {
     is_paused: FunctionFragment;
     pause: FunctionFragment;
     unpause: FunctionFragment;
+    deposit_authorized: FunctionFragment;
     fulfill_random: FunctionFragment;
     get_all_bets: FunctionFragment;
     initialize: FunctionFragment;
+    is_mature: FunctionFragment;
+    nb_block_before_maturity: FunctionFragment;
     place_bet: FunctionFragment;
     request_random: FunctionFragment;
   };
@@ -791,9 +833,12 @@ export class Game extends Contract {
     is_paused: InvokeFunction<[], boolean>;
     pause: InvokeFunction<[], void>;
     unpause: InvokeFunction<[], void>;
+    deposit_authorized: InvokeFunction<[], boolean>;
     fulfill_random: InvokeFunction<[], Result<void, LiquidityPoolErrorOutput>>;
     get_all_bets: InvokeFunction<[], Vec<[IdentityOutput, OutcomeOutput, BN]>>;
     initialize: InvokeFunction<[new_owner: IdentityInput], void>;
+    is_mature: InvokeFunction<[], boolean>;
+    nb_block_before_maturity: InvokeFunction<[], number>;
     place_bet: InvokeFunction<[outcome: OutcomeInput], Result<void, LiquidityPoolErrorOutput>>;
     request_random: InvokeFunction<[seed: string], void>;
   };

@@ -35,7 +35,7 @@ configurable {
     LIQUIDITY_POOL: ContractId = ContractId::from(0x749a7eefd3494f549a248cdcaaa174c1a19f0c1d7898fa7723b6b2f8ecc4828d),
     // TODO: change name to DEPOSIT_ASSET_ID
     BASE_ASSET: AssetId = AssetId::zero(),
-    MATURITY: u32 = 10,
+    MATURITY: u32 = 30,
 }
 
 impl SRC5 for Contract {
@@ -107,6 +107,15 @@ abi Game {
     #[payable]
     fn request_random(seed: b256);
 
+    #[storage(read)]
+    fn is_mature() -> bool;
+
+    #[storage(read)]
+    fn nb_block_before_maturity() -> u32;
+
+    #[storage(read)]
+    fn deposit_authorized() -> bool;
+
     // Fulfill the random number request
     // payout bets and send remaining collateral to liquidity pool
     #[storage(write, read)]
@@ -140,6 +149,7 @@ impl Game for Contract {
     #[storage(write)]
     fn initialize(new_owner: Identity) {
         initialize_ownership(new_owner);
+        storage.start_block_height.write(height());
     }
 
     #[storage(write, read)]
@@ -159,6 +169,25 @@ impl Game for Contract {
             .bets
             .push((msg_sender().unwrap(), outcome, msg_amount()));
         Ok(())
+    }
+
+    #[storage(read)]
+    fn is_mature() -> bool {
+        height() > storage.start_block_height.read() + MATURITY
+    }
+
+    #[storage(read)]
+    fn nb_block_before_maturity() -> u32 {
+        let current_height = height();
+        if current_height > storage.start_block_height.read() + MATURITY {
+            return 0;
+        }
+        return storage.start_block_height.read() + MATURITY - current_height;
+    }
+
+    #[storage(read)]
+    fn deposit_authorized() -> bool {
+        storage.request_id.read().is_none()
     }
 
     #[storage(write, read)]
@@ -236,6 +265,7 @@ impl Game for Contract {
         };
         storage.bets.clear();
         storage.request_id.write(None);
+        storage.start_block_height.write(height());
         Ok(())
     }
 
