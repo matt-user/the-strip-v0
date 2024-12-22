@@ -4,27 +4,15 @@ import Image from "next/image";
 import useSound from "use-sound";
 
 import {
-  Game,
-  IdentityOutput,
   OutcomeInput,
   OutcomeOutput,
 } from "@/types/contracts/Game";
 import Button from "./Button";
-import { gameContractAddress } from "../../../lib";
-import { Account, BN } from "fuels";
 import { usePlaceBet } from "@/hooks/usePlaceBet";
-import { useRequestRandom } from "@/hooks/useRequestRandom";
-import { useProcessOutcomes } from "@/hooks/useProcessOutcomes";
 import { useNumberOfBlocksBeforeMaturity } from "@/hooks/useNumberOfBlocksBeforeMaturity";
 import horse0 from "../../public/horse0.jpeg";
 import { useLastOutcome } from "@/hooks/useLastOutcome";
 import { useGetBets } from "@/hooks/useGetBets";
-
-type Bet = {
-  user: string;
-  outcome: OutcomeInput;
-  amount: BN;
-};
 
 export default function GameContract() {
   const [betOutcome, setBetOutcome] = useState<OutcomeInput | null>(null);
@@ -46,7 +34,7 @@ export default function GameContract() {
     isFetching: isFetchingBets,
     refetch: refetchBets,
   } = useGetBets();
-  const [playHorseSound] = useSound("/horseSound.wav");
+  const [playHorseSound] = useSound("/horseSound.wav", { volume: 0.3 });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -62,21 +50,21 @@ export default function GameContract() {
     }, 500);
 
     return () => clearInterval(interval);
-  }, [refetchNumberOfBlocksBeforeMaturity]);
+  }, [wallet, isFetchingNumberOfBlocks, isFetchingLastOutcome, isFetchingBets, refetchBets, refetchLastOutcome, refetchNumberOfBlocksBeforeMaturity]);
 
   useEffect(() => {
     if (numberOfBlocksBeforeMaturity === 0) {
       playHorseSound();
     }
-  }, [numberOfBlocksBeforeMaturity]);
+  }, [numberOfBlocksBeforeMaturity, playHorseSound]);
 
   return (
     <>
-      <div className="mx-56 mt-28 rounded-lg bg-gray-800">
+      <div className="mx-72 mt-28 rounded-lg bg-gray-800">
         <div className="flex flex-col">
           <div className="flex flex-row">
-            <div className="min-h-96 border-r border-gray-400 border-opacity-40">
-              <div className="text-2xl mx-32 font-bold text-white mb-4">
+            <div className="h-[60vh] border-r border-gray-400 border-opacity-40">
+              <div className="text-2xl mx-32 font-bold text-white my-4">
                 Current Bets
               </div>
               <div>
@@ -92,7 +80,7 @@ export default function GameContract() {
                 ))}
               </div>
             </div>
-            <div className="flex flex-col ml-48 items-center justify-center">
+            <div className="flex flex-col ml-[40vh] items-center justify-center">
             {lastOutCome !== undefined && numberOfBlocksBeforeMaturity !== undefined && numberOfBlocksBeforeMaturity !== 0 && (<div>Last Winner: {lastOutCome}</div>)}
               <div className="text-xl">
                 {/*Do something if numberOfBlocksBeforeMaturity is null otherwise if it's 0 otherwise if its > 0 */}
@@ -109,10 +97,10 @@ export default function GameContract() {
           </div>
           <div className="min-h-28 border-t border-gray-400 border-opacity-40">
             <div className="ml-28 flex flex-row text-8xl">
-              <span className="flex-1 pr-2 text-green-700 hover:cursor-pointer" onClick={() => setBetOutcome(OutcomeInput.GREEN)}>{betOutcome === OutcomeInput.GREEN ? "●" : "￭"}</span>
-              <span className="flex-1 pr-2 text-blue-700 hover:cursor-pointer" onClick={() => setBetOutcome(OutcomeInput.BLUE)}>{betOutcome === OutcomeInput.BLUE ? "●" : "￭"}</span>
-              <span className="flex-1 pr-2 text-red-700 hover:cursor-pointer" onClick={() => setBetOutcome(OutcomeInput.RED)}>{betOutcome === OutcomeInput.RED ? "●" : "￭"}</span>
-              <span className="flex-1 pr-2 text-yellow-400 hover:cursor-pointer" onClick={() => setBetOutcome(OutcomeInput.YELLOW)}>{betOutcome === OutcomeInput.YELLOW ? "●" : "￭"}</span>
+              <button className="flex-1 pr-2 text-green-700 hover:cursor-pointer" onClick={() => setBetOutcome(OutcomeInput.GREEN)}>{betOutcome === OutcomeInput.GREEN ? "●" : "￭"}</button>
+              <button className="flex-1 pr-2 text-blue-700 hover:cursor-pointer" onClick={() => setBetOutcome(OutcomeInput.BLUE)}>{betOutcome === OutcomeInput.BLUE ? "●" : "￭"}</button>
+              <button className="flex-1 pr-2 text-red-700 hover:cursor-pointer" onClick={() => setBetOutcome(OutcomeInput.RED)}>{betOutcome === OutcomeInput.RED ? "●" : "￭"}</button>
+              <button className="flex-1 pr-2 text-yellow-400 hover:cursor-pointer" onClick={() => setBetOutcome(OutcomeInput.YELLOW)}>{betOutcome === OutcomeInput.YELLOW ? "●" : "￭"}</button>
             </div>
             <div className="mx-12 mb-4 flex flex-row justify-around">
               <input
