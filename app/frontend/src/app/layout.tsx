@@ -35,7 +35,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="icon" href="/favicon.ico" />
-        <title>Fuel dApp</title>
+        <title>Strip</title>
       </head>
       <body>
         <React.StrictMode>
