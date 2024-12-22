@@ -3,7 +3,7 @@ import { getRandomB256, Provider, Wallet } from "fuels";
 import { Game } from "./types/contracts/Game";
 
 const GAME_CONTRACT_ID =
-  "0xbcadff6bd2c56a5dd41496a606188c27340bef49c8574e0ef251b7cfa24665de";
+  "0xc65ab59dbf08c36f322135992db75c5dd8c7b5cb1443020f2b2d8b6da3dc3f4f";
 dotenv.config();
 
 const provider = await Provider.create(
