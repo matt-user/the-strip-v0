@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 import LocalFaucet from "./LocalFaucet";
 import Button from "./Button";
-import { isLocal, renderFormattedBalance, testnetFaucetUrl } from "../../../lib";
+import { isLocal, testnetFaucetUrl } from "../../../lib";
 
 export default function Faucet() {
   const { wallet } = useWallet();
@@ -49,7 +49,7 @@ export default function Faucet() {
         <div className="flex items-center justify-between text-base">
           <input
             type="text"
-            value={balance ? `${renderFormattedBalance(balance)} ETH` : ""}
+            value={balance ? `${balance.format({ precision: 4 })} ETH` : ""}
             className="w-2/3 bg-gray-800 rounded-md px-2 py-1 truncate font-mono"
             disabled
             data-testid="balance"

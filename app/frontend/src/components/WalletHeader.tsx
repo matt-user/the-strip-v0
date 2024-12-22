@@ -7,8 +7,6 @@ import {
 } from "@fuels/react";
 import { useEffect } from "react";
 
-import { renderFormattedBalance } from "../../../lib";
-
 import { usdsAssetId } from "../utils/assetId";
 
 import { useMintUSDS } from "@/hooks/useMintUSDS";
@@ -48,9 +46,7 @@ export default function WalletHeader() {
               {wallet
                 ? `${wallet.address
                     .toString()
-                    .substr(0, 10)}... | ${renderFormattedBalance(
-                    balance ? balance : new BN(0)
-                  )} USDS`
+                    .substr(0, 10)}... | ${balance ? balance.format({ precision: 4 }) : new BN(0).format({ precision: 4 })} USDS`
                 : "Loading..."}
             </div>
           </div>

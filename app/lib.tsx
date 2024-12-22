@@ -1,5 +1,3 @@
-import { BN } from "fuels";
-
 import contractIds from "./frontend/src/types/contract-ids.json";
 
 type environment_types = "local" | "testnet";
@@ -45,6 +43,3 @@ export const renderTransactionId = (transactionId: string) => {
   );
 };
 
-export const renderFormattedBalance = (balance: BN) => {
-  return balance.format({ precision: 4 });
-};
